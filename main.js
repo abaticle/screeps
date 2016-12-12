@@ -5,8 +5,11 @@ module.exports.loop = function() {
 
     //delete Memory.rooms; 
 
-    //instanciate and populate rooms
-    var room = new Room(Game.spawns.Spawn1.room);
+
+    var room = Game.spawns.Spawn1.room;
+
+    room.init();
+    room.updateCounters();
 
     Utils.updateMemory();
     Utils.report(room);

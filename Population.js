@@ -214,12 +214,10 @@ Population.prototype.createCreep = function(memory) {
 
         if (spawn.canCreateCreep(build) == OK) {
 
-            let name = this.getNewName(memory.role);
-
             //add cost to creep memory for later optimization
             memory.cost = this.getCost(build);
 
-            result = spawn.createCreep(build, name, memory);
+            result = spawn.createCreep(build, this.getNewName(memory.role), memory);
 
             if (_.isString(result)) {
                 this.created = true;
