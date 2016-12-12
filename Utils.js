@@ -7,12 +7,12 @@ var CreepRepairer = require('CreepRepairer');
 
 
 module.exports = {
-	
 
-	/*
-	*	Delete old creeps
-	*/
-	updateMemory: function() {
+
+    /*
+     *   Delete old creeps
+     */
+    updateMemory: function() {
         for (var name in Memory.creeps) {
 
             if (!Game.creeps[name]) {
@@ -22,13 +22,13 @@ module.exports = {
     },
 
     /*
-    *	Report in console some infos
-    */
+     *   Report in console some infos
+     */
     report: function(room) {
 
         if (Game.time % 15 === 0) {
 
-            let log= {
+            let log = {
                 numberCreeps: 0,
                 energyAvailable: room.room.energyAvailable,
                 energyCapacityAvailable: room.room.energyCapacityAvailable,
@@ -47,7 +47,7 @@ module.exports = {
 
                 log.numberCreeps++;
 
-                switch(Game.creeps[creep].memory.role) {
+                switch (Game.creeps[creep].memory.role) {
                     case "CreepBuilder":
                         log.builders++;
                         break;
@@ -73,7 +73,7 @@ module.exports = {
             console.log("Total number of builders : ", log.builders);
             console.log("Total number of repairers : ", log.repairers);
             console.log("Total number of upgraders : ", log.upgraders);
-            
+
 
             console.log("Room energy : ", log.energyAvailable, " / ", log.energyCapacityAvailable);
             console.log("Dropped energy : ", log.droppedEnergy)

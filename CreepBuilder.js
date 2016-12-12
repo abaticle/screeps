@@ -1,6 +1,6 @@
 var roleBuilder = {
 
-    countUpgaders : function() {
+    countUpgaders: function() {
         return _.filter(Game.creeps, creep => {
             return creep.memory.action === "upgrading";
         }).length;
@@ -22,9 +22,9 @@ var roleBuilder = {
             }
         }
 
-        
 
-        switch(creep.memory.action) {
+
+        switch (creep.memory.action) {
 
             case "harvesting":
                 var closestSpawn = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
@@ -36,9 +36,9 @@ var roleBuilder = {
                     }
                 });
 
-                if(closestSpawn) {
-                    if(creep.withdraw(closestSpawn, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(closestSpawn);    
+                if (closestSpawn) {
+                    if (creep.withdraw(closestSpawn, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                        creep.moveTo(closestSpawn);
                     }
                 }
                 break;
@@ -47,21 +47,21 @@ var roleBuilder = {
             case "building":
                 var targets = creep.room.find(FIND_CONSTRUCTION_SITES);
 
-                if(targets.length) {
-                    if(creep.build(targets[0]) == ERR_NOT_IN_RANGE) {
+                if (targets.length) {
+                    if (creep.build(targets[0]) == ERR_NOT_IN_RANGE) {
                         creep.moveTo(targets[0]);
                     }
                 }
                 break;
 
-            
+
             case "upgrading":
-                if(creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
+                if (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(creep.room.controller);
                 }
                 break;
 
-            
+
 
 
 
@@ -70,7 +70,7 @@ var roleBuilder = {
 
         //Prevent creep from staying on construction site
         if (creep.pos.lookFor(LOOK_CONSTRUCTION_SITES).length > 0) {
-            var dir = Math.floor( Math.random() * 7 );
+            var dir = Math.floor(Math.random() * 7);
             res = creep.move(dir);
         }
     }

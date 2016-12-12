@@ -15,7 +15,7 @@ var roleCarrier = {
 
         if (creep.carry.energy < creep.carryCapacity) {
             var energy = source.pos.findInRange(FIND_DROPPED_ENERGY, 2);
-            
+
             if (energy.length) {
                 creep.moveTo(energy[0]);
                 creep.pickup(energy[0]);
@@ -26,17 +26,17 @@ var roleCarrier = {
             var targets = creep.room.find(FIND_STRUCTURES, {
                 filter: (structure) => {
 
-                    if ((structure.structureType == STRUCTURE_EXTENSION || 
-                        structure.structureType == STRUCTURE_SPAWN) && 
+                    if ((structure.structureType == STRUCTURE_EXTENSION ||
+                            structure.structureType == STRUCTURE_SPAWN) &&
                         structure.energy < structure.energyCapacity) {
-                        
-                        return true;    
+
+                        return true;
                     }
 
-                    if (structure.structureType == STRUCTURE_CONTAINER && 
+                    if (structure.structureType == STRUCTURE_CONTAINER &&
                         structure.energy < structure.storeCapacity) {
-                    
-                        return true;    
+
+                        return true;
                     }
 
                     return false;
@@ -49,9 +49,9 @@ var roleCarrier = {
                         structure.energy < structure.storeCapacity;*/
                 }
             });
-            
-            if(targets.length > 0) {
-                if(creep.transfer(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+
+            if (targets.length > 0) {
+                if (creep.transfer(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(targets[0]);
                 }
             }

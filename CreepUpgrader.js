@@ -9,7 +9,7 @@ var roleUpgrader = {
             creep.memory.action = "upgrading";
         }
 
-        switch(creep.memory.action) {
+        switch (creep.memory.action) {
 
             case "harvesting":
                 var closestSpawn = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
@@ -21,24 +21,24 @@ var roleUpgrader = {
                     }
                 });
 
-                if(closestSpawn) {
-                    if(creep.withdraw(closestSpawn, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(closestSpawn);    
+                if (closestSpawn) {
+                    if (creep.withdraw(closestSpawn, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                        creep.moveTo(closestSpawn);
                     }
                 }
                 break;
-            
+
             case "upgrading":
-                if(creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
+                if (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(creep.room.controller);
                 }
                 break;
         }
 
-        
+
         //Prevent creep from staying on construction site
         if (creep.pos.lookFor(LOOK_CONSTRUCTION_SITES).length > 0) {
-            var dir = Math.floor( Math.random() * 7 );
+            var dir = Math.floor(Math.random() * 7);
             res = creep.move(dir);
         }
     }

@@ -6,13 +6,7 @@ var CreepUpgrader = require("CreepUpgrader");
 
 
 function Population(room) {
-
     this.room = room;
-
-    this.init();
-
-    this.populate();
-    this.runCreeps();
 }
 
 
@@ -133,7 +127,6 @@ Population.prototype.getNewName = function(role) {
     let numTmp = 0;
     let num = 0;
 
-
     var creeps = _.filter(Game.creeps, function(creep) {
         if (creep.memory.role === role) {
             try {
@@ -201,13 +194,13 @@ Population.prototype.getCost = function(build) {
 
 
 /**
- *	Create creep 
+ *  Create creep 
  *      Get best build for a creep 
  */
 Population.prototype.createCreep = function(memory) {
 
     let result = -11;
-    let spawn = Game.getObjectById(this.room.getMemory().spawn.id);
+    let spawn = this.room.getSpawn();
     let role = this.getMemory()[memory.role];
 
     role.builds.reverse().forEach(build => {
@@ -239,14 +232,14 @@ Population.prototype.getSourceMiners = function(sourceId) {
 };
 
 /**
- *	Populate the current room 
- *		1. For each source, create at least one miner
+ *  Populate the current room 
+ *      1. For each source, create at least one miner
  *      2. Then create carrier(s)
  *      3. And only then create builders/upgraders
  */
-Population.prototype.populate = function() {
+Population.prototype.createCreeps = function() {
 
-    if (this.room.energyAvailable < 100) {
+    if (this.room.energyAvailable < 100 || this.room.getSpawn().spawning != null) {
         return;
     }
 
@@ -262,46 +255,50 @@ Population.prototype.populate = function() {
 
         if (!this.created) {
 
+
             if (source.miners === 0) {
+
                 this.createCreep({
                     role: "CreepMiner",
                     linkedStructure: source.id
                 });
-            }
 
-            if (source.carriers === 0) {
-                let targetMiner = this.getSourceMiners(source.id);
+            } else {
 
-                if (targetMiner.length > 0) {
+                if (source.carriers === 0) {
+                    let targetMiner = this.getSourceMiners(source.id);
 
-                    let result = this.createCreep({
-                        role: "CreepCarrier",
-                        targetMiner: targetMiner[0].id,
-                        linkedStructure: source.id
-                    });
+                    if (targetMiner.length > 0) {
 
-                }
-            }
+                        this.createCreep({
+                            role: "CreepCarrier",
+                            targetMiner: targetMiner[0].id,
+                            linkedStructure: source.id
+                        });
 
-            //if (source.miners < source.minersTarget && this.room.getDroppedEnergy() < 5000) {
-            if (source.miners < source.minersTarget) {
-                this.createCreep({
-                    role: "CreepMiner",
-                    linkedStructure: source.id
-                });
-            }
+                    }
+                } else {
 
-            if (source.carriers < source.carriersTarget) {
-                let targetMiner = this.getSourceMiners(source.id);
+                    //if (source.miners < source.minersTarget && this.room.getDroppedEnergy() < 5000) {
+                    if (source.miners < source.minersTarget) {
+                        this.createCreep({
+                            role: "CreepMiner",
+                            linkedStructure: source.id
+                        });
 
-                if (targetMiner.length > 0) {
+                    } else {
+                        if (source.carriers < source.carriersTarget) {
+                            if (this.getSourceMiners(source.id) > 0) {
 
-                    let result = this.createCreep({
-                        role: "CreepCarrier",
-                        targetMiner: targetMiner[0].id,
-                        linkedStructure: source.id
-                    });
+                                this.createCreep({
+                                    role: "CreepCarrier",
+                                    targetMiner: targetMiner[0].id,
+                                    linkedStructure: source.id
+                                });
 
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -310,25 +307,26 @@ Population.prototype.populate = function() {
     //And then, create builders, upgraders and repairers
     if (!this.created) {
         if (roomMemory.spawn.builders < roomMemory.spawn.buildersTarget) {
-            let result = this.createCreep({
+            this.createCreep({
                 role: "CreepBuilder",
                 linkedStructure: roomMemory.spawn.id
             });
+        } else {
+            if (roomMemory.controller.upgraders < roomMemory.controller.upgradersTarget) {
+                this.createCreep({
+                    role: "CreepUpgrader",
+                    linkedStructure: roomMemory.controller.id
+                });
+            } else {
+                if (roomMemory.spawn.repairers < roomMemory.spawn.repairersTarget) {
+                    this.createCreep({
+                        role: "CreepRepairer",
+                        linkedStructure: roomMemory.spawn.id
+                    });
+                }
+            }
         }
 
-        if (roomMemory.spawn.repairers < roomMemory.spawn.repairersTarget) {
-            let result = this.createCreep({
-                role: "CreepRepairer",
-                linkedStructure: roomMemory.spawn.id
-            });
-        }
-
-        if (roomMemory.controller.upgraders < roomMemory.controller.upgradersTarget) {
-            let result = this.createCreep({
-                role: "CreepUpgrader",
-                linkedStructure: roomMemory.controller.id
-            });
-        }
     }
 };
 

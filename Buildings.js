@@ -7,12 +7,8 @@
 function Buildings(room) {
 
     this.room = room;
-    this.spawn = Game.getObjectById(room.getMemory().spawn.id);
+    this.spawn = this.room.getSpawn();
 
-    this.init();
-
-    this.updateCounters();
-    this.createBuildings();
 
 }
 
@@ -27,7 +23,7 @@ Buildings.prototype.findFreePos = function(fromPosition) {
 
     for (let range = 1; range <= maxRange; range++) {
 
-        let areas = this.spawn.lookForAtArea(
+        let areas = this.room.lookForAtArea(
             LOOK_TERRAIN,
             fromPosition.y - range,
             fromPosition.x - range,
@@ -41,7 +37,7 @@ Buildings.prototype.findFreePos = function(fromPosition) {
 
             if (area.type === "terrain") {
 
-                let pos = this.spawn.getPositionAt(area.x, area.y);
+                let pos = this.room.getPositionAt(area.x, area.y);
 
                 if (pos.lookFor(LOOK_STRUCTURES).length == 0 && pos.lookFor(LOOK_CONSTRUCTION_SITES).length == 0) {
                     newPos = pos;
@@ -164,7 +160,12 @@ Buildings.prototype.createBuildings = function() {
 
     //Build towers
     if (memory.towers < levelMemory.extensionsTarget) {
-        this.buildTower(this.spawn.pos);
+
+        var constructionSites = this.room.find(FIND_CONSTRUCTION_SITES);
+
+        if (constructionSites.length == 0) {
+            this.buildTower(this.spawn.pos);
+        }
     }
 
     //When 3 or more extensions, build road for sources
