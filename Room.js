@@ -9,7 +9,7 @@ function Room(room) {
     this.updateCounters();
 
     this.population = new Population(this.room);
-    this.buildings = new Buildings(this.room);    
+    this.buildings = new Buildings(this.room);
 }
 
 
@@ -35,17 +35,17 @@ Room.prototype.updateCounters = function() {
 
     //Update spawn stats
     memory.spawn.builders = _.filter(Game.creeps, (creep) => {
-        return creep.memory.role === "CreepBuilder" && creep.memory.linkedStructure = memory.spawn.id;
+        return creep.memory.role === "CreepBuilder" && creep.memory.linkedStructure === memory.spawn.id;
     })
 
     memory.spawn.repairers = _.filter(Game.creeps, (creep) => {
-        return creep.memory.role === "CreepRepairer" && creep.memory.linkedStructure = memory.spawn.id;
+        return creep.memory.role === "CreepRepairer" && creep.memory.linkedStructure === memory.spawn.id;
     });
 
 
     //Update controller stats
     memory.controller.repairers = _.filter(Game.creeps, (creep) => {
-        return creep.memory.role === "CreepUpdgrader" && creep.memory.linkedStructure = memory.controller.id;
+        return creep.memory.role === "CreepUpdgrader" && creep.memory.linkedStructure === memory.controller.id;
     });
 
 
@@ -63,8 +63,8 @@ Room.prototype.setMemory = function(memory) {
 
 
 /*
-*   Initialize room memory
-*/
+ *   Initialize room memory
+ */
 Room.prototype.init = function() {
 
     if (this.room.memory.init === false || this.room.memory.init === undefined) {
@@ -84,15 +84,15 @@ Room.prototype.init = function() {
 
         //List room sources :
         this.room.find(FIND_SOURCES_ACTIVE).forEach(source => {
-    
+
             let areas = this.room.lookForAtArea(
-                LOOK_TERRAIN, 
-                source.pos.y-1, 
-                source.pos.x-1, 
-                source.pos.y+1, 
-                source.pos.x+1, 
+                LOOK_TERRAIN,
+                source.pos.y - 1,
+                source.pos.x - 1,
+                source.pos.y + 1,
+                source.pos.x + 1,
                 true
-            );  
+            );
 
             let minersTarget = _.filter(areas, (area) => {
                 return area.terrain === "plain" || area.terrain === "swamp";
@@ -109,8 +109,8 @@ Room.prototype.init = function() {
                 id: source.id,
                 pos: source.pos,
                 miners: 0,
-                minersTarget: minersTarget,   
-                carriers: 0,             
+                minersTarget: minersTarget,
+                carriers: 0,
                 carriersTarget: carriersTarget,
                 roadBuild: false
             });
