@@ -8,8 +8,8 @@ function Room(room) {
     this.init();
     this.updateCounters();
 
-    this.population = new Population(this.room);
-    this.buildings = new Buildings(this.room);
+    this.population = new Population(this);
+    this.buildings = new Buildings(this);
 }
 
 
