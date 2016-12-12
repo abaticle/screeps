@@ -8,7 +8,7 @@ var CreepUpgrader = require("CreepUpgrader");
 function Population(room) {
 
     this.room = room;
-    
+
     this.init();
 
     this.populate();
@@ -26,8 +26,8 @@ Population.prototype.setMemory = function(config) {
 };
 
 /*
-*   Init memory
-*/
+ *   Init memory
+ */
 Population.prototype.init = function() {
 
     if (this.getMemory() === undefined) {
@@ -83,7 +83,7 @@ Population.prototype.init = function() {
                     [MOVE, MOVE, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY]
                 ]
             }
-        }    
+        }
 
         this.setMemory(memory);
     }
@@ -92,8 +92,8 @@ Population.prototype.init = function() {
 
 
 /*
-*   Run creeps for each roles
-*/
+ *   Run creeps for each roles
+ */
 Population.prototype.runCreeps = function() {
 
     _.each(Game.creeps, function(creep) {
@@ -107,7 +107,7 @@ Population.prototype.runCreeps = function() {
             case 'CreepCarrier':
                 CreepCarrier.run(creep);
                 break;
- 
+
             case 'CreepMiner':
                 CreepMiner.run(creep);
                 break;
@@ -126,8 +126,8 @@ Population.prototype.runCreeps = function() {
 
 
 /*
-*   Create a new name using role
-*/
+ *   Create a new name using role
+ */
 Population.prototype.getNewName = function(role) {
 
     let numTmp = 0;
@@ -160,43 +160,43 @@ Population.prototype.getNewName = function(role) {
 
 
 /*
-*   Calculate screep body cost
-*/
+ *   Calculate screep body cost
+ */
 Population.prototype.getCost = function(build) {
-    
+
     let buildCost = 0;
 
     for (let index = 0; index < build.length; ++index) {
 
         let bodypart = build[index];
 
-        switch(bodypart){
-          case MOVE:
-          case CARRY:
-            buildCost += 50;
-            break;
-          case WORK:
-            buildCost += 100;
-            break;
-          case ATTACK:
-            buildCost += 80;
-            break;
-          case RANGED_ATTACK:
-            buildCost += 150;
-            break;
-          case HEAL:
-            buildCost += 250;
-            break;
-          case TOUGH:
-            buildCost += 10;
-            break;
-          case CLAIM:
-            buildCost += 600;
-            break;
+        switch (bodypart) {
+            case MOVE:
+            case CARRY:
+                buildCost += 50;
+                break;
+            case WORK:
+                buildCost += 100;
+                break;
+            case ATTACK:
+                buildCost += 80;
+                break;
+            case RANGED_ATTACK:
+                buildCost += 150;
+                break;
+            case HEAL:
+                buildCost += 250;
+                break;
+            case TOUGH:
+                buildCost += 10;
+                break;
+            case CLAIM:
+                buildCost += 600;
+                break;
         }
     }
 
-    return buildCost; 
+    return buildCost;
 };
 
 
@@ -208,8 +208,7 @@ Population.prototype.createCreep = function(memory) {
 
     let result = -11;
     let spawn = Game.getObjectById(this.room.getMemory().spawn.id);
-
-    let role = _.find(this.getMemory()[memory.role]);
+    let role = this.getMemory()[memory.role];
 
     role.builds.reverse().forEach(build => {
 
@@ -217,7 +216,7 @@ Population.prototype.createCreep = function(memory) {
 
             let name = this.getNewName(memory.role);
 
-            //add cost to creep memory
+            //add cost to creep memory for later optimization
             memory.cost = this.getCost(build);
 
             result = spawn.createCreep(build, name, memory);
@@ -232,8 +231,8 @@ Population.prototype.createCreep = function(memory) {
 };
 
 /*
-*   Get miners using a sourceId
-*/
+ *   Get miners using a sourceId
+ */
 Population.prototype.getSourceMiners = function(sourceId) {
 
     return _.filter(Game.creeps, (creep) => {
@@ -251,18 +250,18 @@ Population.prototype.populate = function() {
 
     if (this.room.energyAvailable < 100) {
         return;
-    } 
+    }
 
     var roomMemory = this.room.getMemory();
 
 
     //created prevent creating more than 1 creep a tick
     this.created = false;
-    
+
 
     //First, create miners and carriers
     roomMemory.sources.forEach((source, index) => {
-        
+
         if (!this.created) {
 
             if (source.miners === 0) {
