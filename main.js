@@ -27,4 +27,9 @@ module.exports.loop = function() {
     buildings.createBuildings();
 
 
+    Utils.updateMemory();
+    Utils.report(room);
+
+
+
 };

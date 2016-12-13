@@ -10,12 +10,15 @@ var roleBuilder = {
     /** @param {Creep} creep **/
     run: function(creep) {
 
+        console.log(creep.room.memory)
+
+
         if (creep.carry.energy == 0) {
             creep.memory.action = "harvesting";
         } else {
             var targets = creep.room.find(FIND_CONSTRUCTION_SITES);
 
-            if (targets.length > 0 && creep.room.controller.level != 1) {
+            if (targets.length > 0) {
                 creep.memory.action = "building";
             } else {
                 creep.memory.action = "upgrading";

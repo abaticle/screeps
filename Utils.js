@@ -30,10 +30,10 @@ module.exports = {
 
             let log = {
                 numberCreeps: 0,
-                energyAvailable: room.room.energyAvailable,
-                energyCapacityAvailable: room.room.energyCapacityAvailable,
-                extensions: room.room.memory.extensions,
-                droppedEnergy: room.getDroppedEnergy(),
+                energyAvailable: room.energyAvailable,
+                energyCapacityAvailable: room.energyCapacityAvailable,
+                extensions: room.memory.extensions,
+                // droppedEnergy: room.getDroppedEnergy(),
                 miners: 0,
                 carriers: 0,
                 builders: 0,
@@ -43,7 +43,8 @@ module.exports = {
 
             //log.numberCreeps = Game.creeps.length;
 
-            for (creep in Game.creeps) {
+
+            for (let creep in Game.creeps) {
 
                 log.numberCreeps++;
 
@@ -76,7 +77,7 @@ module.exports = {
 
 
             console.log("Room energy : ", log.energyAvailable, " / ", log.energyCapacityAvailable);
-            console.log("Dropped energy : ", log.droppedEnergy)
+            //console.log("Dropped energy : ", log.droppedEnergy)
 
         }
 

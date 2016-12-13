@@ -14,7 +14,9 @@ Room.prototype.init = function() {
             sources: [],
             controller: {},
             stats: {
-                droppedEnergy: _.sum(this.find(FIND_DROPPED_ENERGY, "amount"))
+                droppedEnergy: 0,
+                energyAvailable: 0,
+                energyCapacityAvailable: 0
             }
         };
 
@@ -40,10 +42,10 @@ Room.prototype.init = function() {
             }
 
             let carriersTarget = 0;
-            if (minersTarget <= 2) {
-                carriersTarget = 1;
-            } else {
+            if (minersTarget == 3) {
                 carriersTarget = 2;
+            } else {
+                carriersTarget = 1;
             }
 
             memory.sources.push({
@@ -65,7 +67,7 @@ Room.prototype.init = function() {
             id: spawn.id,
             pos: spawn.pos,
             builders: 0,
-            buildersTarget: 3,
+            buildersTarget: 2,
             repairers: 0,
             repairersTarget: 2,
             roadBuild: false
@@ -125,6 +127,7 @@ Room.prototype.updateCounters = function() {
         }).length;
     });
 
+
     //Update spawn stats
     memory.spawn.builders = _.filter(Game.creeps, (creep) => {
         return creep.memory.role === "CreepBuilder" && creep.memory.linkedStructure === memory.spawn.id;
@@ -134,12 +137,18 @@ Room.prototype.updateCounters = function() {
         return creep.memory.role === "CreepRepairer" && creep.memory.linkedStructure === memory.spawn.id;
     }).length;
 
+
     //Update controller stats
     memory.controller.upgraders = _.filter(Game.creeps, (creep) => {
         return creep.memory.role === "CreepUpdgrader" && creep.memory.linkedStructure === memory.controller.id;
     }).length;
 
     memory.controller.level = this.controller.level;
+
+    memory.stats.energyAvailable = this.energyAvailable;
+    memory.stats.energyCapacityAvailable = this.energyCapacityAvailable;
+
+
 
     this.setMemory(memory);
 };

@@ -266,21 +266,21 @@ Population.prototype.createCreeps = function() {
             } else {
 
                 if (source.carriers === 0) {
-                    let targetMiner = this.getSourceMiners(source.id);
+                    let targetMiners = this.getSourceMiners(source.id);
 
-                    if (targetMiner.length > 0) {
+                    if (targetMiners.length > 0) {
 
                         this.createCreep({
                             role: "CreepCarrier",
-                            targetMiner: targetMiner[0].id,
+                            targetMiner: targetMiners[0].id,
                             linkedStructure: source.id
                         });
 
                     }
                 } else {
 
-                    //if (source.miners < source.minersTarget && this.room.getDroppedEnergy() < 5000) {
                     if (source.miners < source.minersTarget) {
+
                         this.createCreep({
                             role: "CreepMiner",
                             linkedStructure: source.id
@@ -288,11 +288,13 @@ Population.prototype.createCreeps = function() {
 
                     } else {
                         if (source.carriers < source.carriersTarget) {
-                            if (this.getSourceMiners(source.id) > 0) {
+                            let targetMiners = this.getSourceMiners(source.id);
+
+                            if (targetMiners.length > 0) {
 
                                 this.createCreep({
                                     role: "CreepCarrier",
-                                    targetMiner: targetMiner[0].id,
+                                    targetMiner: targetMiners[0].id,
                                     linkedStructure: source.id
                                 });
 

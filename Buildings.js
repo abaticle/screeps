@@ -1,8 +1,8 @@
 /*
-	memory.buildings = {
-			extensions: 0,
-			extensionsTarget: 0
-	}
+    memory.buildings = {
+            extensions: 0,
+            extensionsTarget: 0
+    }
 */
 function Buildings(room) {
 
@@ -55,7 +55,7 @@ Buildings.prototype.findFreePos = function(fromPosition) {
 };
 
 /*
- *	Get building memory
+ *  Get building memory
  */
 Buildings.prototype.getMemory = function() {
     return this.room.memory.buildings;
@@ -63,7 +63,7 @@ Buildings.prototype.getMemory = function() {
 
 
 /*
- *	Get current room level memory
+ *  Get current room level memory
  */
 Buildings.prototype.getLevelMemory = function() {
 
@@ -77,20 +77,18 @@ Buildings.prototype.getLevelMemory = function() {
 
 
 /*
- * 	Set building memory
+ *  Set building memory
  */
 Buildings.prototype.setMemory = function(memory) {
     this.room.memory.buildings = memory;
 };
 
 /*
- *	Initialize building memory which count structures created and to create
+ *  Initialize building memory which count structures created and to create
  */
 Buildings.prototype.init = function() {
 
     if (this.room.memory.buildings === undefined) {
-
-        console.log("initialize room ", this.room, " buildings");
 
         let memory = {
             extensions: 0,
@@ -117,7 +115,7 @@ Buildings.prototype.init = function() {
 
 
 /*
- *	Count current buildings
+ *  Count current buildings
  */
 Buildings.prototype.updateCounters = function() {
 
@@ -140,7 +138,7 @@ Buildings.prototype.updateCounters = function() {
 };
 
 /*
- *	Launch buildings constructions
+ *  Launch buildings constructions
  */
 Buildings.prototype.createBuildings = function() {
 
@@ -171,7 +169,7 @@ Buildings.prototype.createBuildings = function() {
     //When 3 or more extensions, build road for sources
     if (memory.extensions >= 3) {
 
-        this.room.memory.config.sources.forEach((source) => {
+        this.room.getMemory().sources.forEach((source) => {
             if (source.roadBuild == true) {
                 return;
             }
@@ -193,7 +191,7 @@ Buildings.prototype.createBuildings = function() {
 };
 
 /*
- *	Build extension near to spawn area with road between them
+ *  Build extension near to spawn area with road between them
  */
 Buildings.prototype.buildExtension = function(fromPosition) {
 
@@ -220,7 +218,7 @@ Buildings.prototype.buildExtension = function(fromPosition) {
 };
 
 /*
- *	Build a road between 2 pos
+ *  Build a road between 2 pos
  */
 Buildings.prototype.buildRoad = function(fromPosition, toPosition) {
 
