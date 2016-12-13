@@ -23,7 +23,9 @@ Population.prototype.setMemory = function(config) {
  *   Init memory
  */
 Population.prototype.init = function() {
-
+    
+    //this.setMemory(undefined)
+    
     if (this.getMemory() === undefined) {
 
         let memory = {
@@ -31,27 +33,27 @@ Population.prototype.init = function() {
                 builds: [
                     [MOVE, WORK],
                     [MOVE, WORK, WORK],
-                    [MOVE, WORK, WORK, WORK],
-                    [MOVE, WORK, WORK, WORK, WORK],
-                    [MOVE, WORK, WORK, WORK, WORK, WORK]
+                    [MOVE, MOVE, WORK, WORK, WORK],
+                    [MOVE, MOVE, WORK, WORK, WORK, WORK],
+                    [MOVE, MOVE, MOVE, WORK, WORK, WORK, WORK, WORK]
                 ]
             },
             CreepBuilder: {
                 builds: [
                     [MOVE, WORK, CARRY],
-                    [MOVE, WORK, WORK, CARRY],
-                    [MOVE, WORK, WORK, CARRY, CARRY],
-                    [MOVE, WORK, WORK, WORK, CARRY, CARRY],
-                    [MOVE, WORK, WORK, WORK, WORK, CARRY, CARRY]
+                    [MOVE, MOVE, WORK, WORK, CARRY],
+                    [MOVE, MOVE, WORK, WORK, CARRY, CARRY],
+                    [MOVE, MOVE, MOVE, WORK, WORK, WORK, CARRY, CARRY],
+                    [MOVE, MOVE, MOVE, WORK, WORK, WORK, WORK, CARRY, CARRY]
                 ]
             },
             CreepUpgrader: {
                 builds: [
                     [MOVE, WORK, CARRY],
                     [MOVE, WORK, WORK, CARRY],
-                    [MOVE, WORK, WORK, CARRY, CARRY],
-                    [MOVE, WORK, WORK, WORK, CARRY, CARRY],
-                    [MOVE, WORK, WORK, WORK, WORK, CARRY, CARRY]
+                    [MOVE, MOVE, WORK, WORK, CARRY, CARRY],
+                    [MOVE, MOVE, WORK, WORK, WORK, CARRY, CARRY],
+                    [MOVE, MOVE, MOVE, WORK, WORK, WORK, WORK, CARRY, CARRY]
                 ]
             },
             CreepCarrier: {
@@ -70,11 +72,11 @@ Population.prototype.init = function() {
                 builds: [
                     [MOVE, WORK, CARRY],
                     [MOVE, WORK, WORK, CARRY],
-                    [MOVE, WORK, WORK, CARRY, CARRY],
-                    [MOVE, WORK, WORK, WORK, CARRY, CARRY],
-                    [MOVE, WORK, WORK, WORK, CARRY, CARRY, CARRY],
+                    [MOVE, MOVE, WORK, WORK, CARRY, CARRY],
+                    [MOVE, MOVE, WORK, WORK, WORK, CARRY, CARRY],
                     [MOVE, MOVE, WORK, WORK, WORK, CARRY, CARRY, CARRY],
-                    [MOVE, MOVE, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY]
+                    [MOVE, MOVE, MOVE, WORK, WORK, WORK, CARRY, CARRY, CARRY],
+                    [MOVE, MOVE, MOVE, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY]
                 ]
             }
         }
@@ -89,7 +91,8 @@ Population.prototype.init = function() {
  *   Run creeps for each roles
  */
 Population.prototype.runCreeps = function() {
-
+    
+    
     _.each(Game.creeps, function(creep) {
 
         switch (creep.memory.role) {
@@ -202,10 +205,13 @@ Population.prototype.createCreep = function(memory) {
     let result = -11;
     let spawn = this.room.getSpawn();
     let role = this.getMemory()[memory.role];
-
+    
+    
     role.builds.reverse().forEach(build => {
 
-        if (spawn.canCreateCreep(build) == OK) {
+        if (spawn.canCreateCreep(build) == OK && !this.created) {
+            
+            
 
             //add cost to creep memory for later optimization
             memory.cost = this.getCost(build);

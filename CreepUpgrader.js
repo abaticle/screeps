@@ -2,15 +2,33 @@ var roleUpgrader = {
 
     /** @param {Creep} creep **/
     run: function(creep) {
-
-        if (creep.carry.energy == 0) {
-            creep.memory.action = "harvesting";
+    
+    
+        if (creep.ticksToLive < 100) {
+            creep.memory.action = "retiring";
         } else {
-            creep.memory.action = "upgrading";
+            if (creep.carry.energy == 0) {
+                creep.memory.action = "harvesting";
+            } else {
+                creep.memory.action = "upgrading";
+            }
         }
 
         switch (creep.memory.action) {
-
+            
+            case "retiring":
+                var closestSpawn = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
+                    filter: function(structure) {
+                        return structure.structureType === STRUCTURE_SPAWN;
+                    }
+                });
+                
+                if (closestSpawn) {
+                    creep.moveTo(closestSpawn);
+                    closestSpawn.recycleCreep(creep);
+                }
+                break;
+                
             case "harvesting":
                 var closestSpawn = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
                     filter: function(structure) {
@@ -20,10 +38,14 @@ var roleUpgrader = {
                         );
                     }
                 });
-
-                if (closestSpawn) {
-                    if (creep.withdraw(closestSpawn, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(closestSpawn);
+                
+                if (creep.room.energyAvailable < 100) {
+                    creep.moveTo(closestSpawn);
+                } else {
+                    if (closestSpawn) {
+                        if (creep.withdraw(closestSpawn, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                            creep.moveTo(closestSpawn);
+                        }
                     }
                 }
                 break;
@@ -38,8 +60,8 @@ var roleUpgrader = {
 
         //Prevent creep from staying on construction site
         if (creep.pos.lookFor(LOOK_CONSTRUCTION_SITES).length > 0) {
-            var dir = Math.floor(Math.random() * 7);
-            res = creep.move(dir);
+            let dir = Math.floor(Math.random() * 7);
+            let res = creep.move(dir);
         }
     }
 };

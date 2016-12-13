@@ -1,15 +1,34 @@
 var roleRepairer = {
 
     run: function(creep) {
-
-        if (creep.carry.energy == 0) {
-            creep.memory.action = "harvesting";
+        
+        
+        if (creep.ticksToLive < 100) {
+            creep.memory.action = "retiring";
         } else {
-            creep.memory.action = "repairing";
+            if (creep.carry.energy == 0) {
+                creep.memory.action = "harvesting";
+            } else {
+                creep.memory.action = "repairing";
+            }
         }
 
         switch (creep.memory.action) {
 
+            
+            case "retiring":
+                var closestSpawn = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
+                    filter: function(structure) {
+                        return structure.structureType === STRUCTURE_SPAWN;
+                    }
+                });
+                
+                if (closestSpawn) {
+                    creep.moveTo(closestSpawn);
+                    closestSpawn.recycleCreep(creep);
+                }
+                break;
+                
             case "harvesting":
                 var closestSpawn = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
                     filter: function(structure) {

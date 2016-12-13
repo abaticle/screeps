@@ -16,7 +16,8 @@ Room.prototype.init = function() {
             stats: {
                 droppedEnergy: 0,
                 energyAvailable: 0,
-                energyCapacityAvailable: 0
+                energyCapacityAvailable: 0,
+                constructionSites: 0
             }
         };
 
@@ -143,7 +144,7 @@ Room.prototype.updateCounters = function() {
         return creep.memory.role === "CreepUpgrader" && creep.memory.linkedStructure === memory.controller.id;
     }).length;
 
-
+    memory.stats.constructionSites = this.find(FIND_CONSTRUCTION_SITES).length;
 
     memory.controller.level = this.controller.level;
 

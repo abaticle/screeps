@@ -26,7 +26,7 @@ module.exports = {
      */
     report: function(room) {
 
-        if (Game.time % 1 === 0) {
+        if (Game.time % 10 === 0) {
 
             let log = {
                 numberCreeps: 0,

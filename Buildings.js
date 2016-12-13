@@ -12,6 +12,32 @@ function Buildings(room) {
 
 }
 
+Buildings.prototype.runTower = function() {
+    
+    let towers = this.room.find(FIND_MY_STRUCTURES, {
+        filter: {structureType : STRUCTURE_TOWER}
+    })
+    
+    towers.forEach((tower) => {
+        
+        //First, try to find hostile creep
+        var closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+        
+        if(closestHostile) {
+            tower.attack(closestHostile);
+        } else {
+            
+            //Else, try to repaire structures
+            var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
+                filter: (structure) => structure.hits < structure.hitsMax
+            });
+            if(closestDamagedStructure) {
+                tower.repair(closestDamagedStructure);
+            }
+        }
+    })
+    
+}
 
 /*
  * Find free position near fromPosition
@@ -145,6 +171,17 @@ Buildings.prototype.createBuildings = function() {
     let memory = this.getMemory();
     let levelMemory = this.getLevelMemory();
 
+    //Build towers
+    if (memory.towers < levelMemory.extensionsTarget) {
+
+        var constructionSites = this.room.find(FIND_CONSTRUCTION_SITES);
+
+        if (constructionSites.length == 0) {
+            this.buildTower(this.spawn.pos);
+        }
+    }
+    
+    
     //Build extensions
     if (memory.extensions < levelMemory.extensionsTarget) {
 
@@ -156,15 +193,6 @@ Buildings.prototype.createBuildings = function() {
     }
 
 
-    //Build towers
-    if (memory.towers < levelMemory.extensionsTarget) {
-
-        var constructionSites = this.room.find(FIND_CONSTRUCTION_SITES);
-
-        if (constructionSites.length == 0) {
-            this.buildTower(this.spawn.pos);
-        }
-    }
 
     //When 3 or more extensions, build road for sources
     if (memory.extensions >= 3) {
