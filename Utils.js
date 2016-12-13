@@ -26,7 +26,7 @@ module.exports = {
      */
     report: function(room) {
 
-        if (Game.time % 15 === 0) {
+        if (Game.time % 1 === 0) {
 
             let log = {
                 numberCreeps: 0,
@@ -67,16 +67,20 @@ module.exports = {
                 }
             }
 
-            console.log("===========================================");
-            console.log("Total number of creeps : ", log.numberCreeps);
-            console.log("Total number of miners : ", log.miners);
-            console.log("Total number of carriers : ", log.carriers);
-            console.log("Total number of builders : ", log.builders);
-            console.log("Total number of repairers : ", log.repairers);
-            console.log("Total number of upgraders : ", log.upgraders);
+            let display = [
+                "<table border='1' cellpadding='10'>",
+                "<tr><td>Total number of creeps</td><td align='center'>", log.numberCreeps, "</td></tr>",
+                "<tr><td>Total number of miners</td><td align='center'>", log.miners, "</td></tr>",
+                "<tr><td>Total number of carriers</td><td align='center'>", log.carriers, "</td></tr>",
+                "<tr><td>Total number of builders</td><td align='center'>", log.builders, "</td></tr>",
+                "<tr><td>Total number of repairers</td><td align='center'>", log.repairers, "</td></tr>",
+                "<tr><td>Total number of upgraders</td><td align='center'>", log.upgraders, "</td></tr>",
+                "<tr><td>Room energy</td><td>", log.energyAvailable, "/", log.energyCapacityAvailable, "</td></tr>",
+                "</table>"
+            ].join("");
 
 
-            console.log("Room energy : ", log.energyAvailable, " / ", log.energyCapacityAvailable);
+            console.log(display);
             //console.log("Dropped energy : ", log.droppedEnergy)
 
         }

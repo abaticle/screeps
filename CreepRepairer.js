@@ -45,8 +45,8 @@ var roleRepairer = {
         }
 
         if (creep.pos.lookFor(LOOK_CONSTRUCTION_SITES).length > 0) {
-            var dir = Math.floor(Math.random() * 7);
-            res = creep.move(dir);
+            let dir = Math.floor(Math.random() * 7);
+            let res = creep.move(dir);
         }
     }
 };

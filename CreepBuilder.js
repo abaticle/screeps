@@ -10,8 +10,6 @@ var roleBuilder = {
     /** @param {Creep} creep **/
     run: function(creep) {
 
-        console.log(creep.room.memory)
-
 
         if (creep.carry.energy == 0) {
             creep.memory.action = "harvesting";

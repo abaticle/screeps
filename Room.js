@@ -140,8 +140,10 @@ Room.prototype.updateCounters = function() {
 
     //Update controller stats
     memory.controller.upgraders = _.filter(Game.creeps, (creep) => {
-        return creep.memory.role === "CreepUpdgrader" && creep.memory.linkedStructure === memory.controller.id;
+        return creep.memory.role === "CreepUpgrader" && creep.memory.linkedStructure === memory.controller.id;
     }).length;
+
+
 
     memory.controller.level = this.controller.level;
 
