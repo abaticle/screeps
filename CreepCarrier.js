@@ -40,12 +40,19 @@ var roleCarrier = {
     
     
             } else {
-                var targets = creep.room.find(FIND_STRUCTURES, {
+                let tower;
+                
+                let targets = creep.room.find(FIND_STRUCTURES, {
                     filter: (structure) => {
                         
+                        //First priority for towers with less than 200 energy
                         if (structure.structureType == STRUCTURE_TOWER &&
                             structure.energy < structure.energyCapacity) {
-    
+                            
+                            if (structure.energy < 200) {
+                                tower = structure;
+                            }
+                            
                             return true;
                         }
                         
@@ -55,10 +62,12 @@ var roleCarrier = {
     
                             return true;
                         }
-    
+                        
+                         
                         if (structure.structureType == STRUCTURE_CONTAINER &&
-                            structure.energy < structure.storeCapacity) {
-    
+                            _.sum(structure.store) < structure.storeCapacity) {
+        
+                           
                             return true;
                         }
     
@@ -74,8 +83,17 @@ var roleCarrier = {
                 });
     
                 if (targets.length > 0) {
-                    if (creep.transfer(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(targets[0]);
+                    let target;
+                    
+                    if (tower !== undefined) {
+                        target = tower;
+                    } else {
+                        target = targets[0];
+                    } 
+                    
+                    
+                    if (creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                        creep.moveTo(target);
                     }
                 }
             }

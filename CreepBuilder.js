@@ -46,17 +46,28 @@ var roleBuilder = {
                 
 
             case "harvesting":
-                var closestSpawn = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
+                var closestSpawn = creep.pos.findClosestByRange(FIND_STRUCTURES, {
                     filter: function(structure) {
-                        return structure.energy > 0 && (
+                        if (structure.structureType == STRUCTURE_CONTAINER &&
+                            _.sum(structure.store) > 0) {
+                           
+                            return true;
+                        }                        
+                        
+                        if ( structure.energy > 0 && (
                             structure.structureType === STRUCTURE_EXTENSION ||
                             structure.structureType === STRUCTURE_SPAWN
-                        );
+                        )) {
+                            return true;
+                        }
+
+                        
+                        return false;
                     }
                 });
                 
                 
-                if (creep.room.energyAvailable < 100) {
+                if (creep.room.energyAvailable < 150) {
                     creep.moveTo(closestSpawn);
                 } else {
                     if (closestSpawn) {

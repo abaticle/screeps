@@ -219,6 +219,9 @@ Population.prototype.createCreep = function(memory) {
             result = spawn.createCreep(build, this.getNewName(memory.role), memory);
 
             if (_.isString(result)) {
+                
+                console.log("generate ", memory.role, " with cost ", memory.cost);
+                
                 this.created = true;
             }
         }
@@ -314,7 +317,11 @@ Population.prototype.createCreeps = function() {
 
     //And then, create builders, upgraders and repairers
     if (!this.created) {
-        if (roomMemory.spawn.builders < roomMemory.spawn.buildersTarget) {
+        
+        var constructionSites = this.room.find(FIND_CONSTRUCTION_SITES);
+        
+        
+        if (roomMemory.spawn.builders < roomMemory.spawn.buildersTarget && constructionSites.length > 0) {
             this.createCreep({
                 role: "CreepBuilder",
                 linkedStructure: roomMemory.spawn.id

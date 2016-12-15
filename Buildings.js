@@ -27,13 +27,41 @@ Buildings.prototype.runTower = function() {
             tower.attack(closestHostile);
         } else {
             
-            //Else, try to repaire structures
-            var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-                filter: (structure) => structure.hits < structure.hitsMax
-            });
-            if(closestDamagedStructure) {
-                tower.repair(closestDamagedStructure);
+            //Else, try to repaire structures, but keep a minimum of 200 energy
+            if (tower.energy > 200) {
+                
+                
+                 var targets = this.room.find(FIND_STRUCTURES, {
+                    filter: (object) => {
+                        if (object.structureType === STRUCTURE_WALL) {
+                            if (object.hits < 3000) {
+                                return true;
+                            }
+                        } else {
+                            if (object.hits < (object.hitsMax / 4)) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    }
+                });
+
+                targets.sort((a, b) => a.hits - b.hits);
+
+                /*if (targets.length > 0) {
+                    if (creep.repair(targets[0]) == ERR_NOT_IN_RANGE) {
+                        creep.moveTo(targets[0]);
+                    }
+                }
+                
+                var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
+                    filter: (structure) => structure.hits < structure.hitsMax
+                });*/
+                if(targets.length > 0) {
+                    tower.repair(targets[0]);
+                }
             }
+           
         }
     })
     
@@ -113,24 +141,30 @@ Buildings.prototype.setMemory = function(memory) {
  *  Initialize building memory which count structures created and to create
  */
 Buildings.prototype.init = function() {
-
-    if (this.room.memory.buildings === undefined) {
+    
+    //delete this.room.memory.buildings;
+    
+    if (this.getMemory() === undefined) {
 
         let memory = {
             extensions: 0,
             towers: 0,
+            containers: 0,
             levels: [{
                 level: 1,
                 extensionsTarget: 0,
-                towersTarget: 0
+                towersTarget: 0,
+                containersTarget: 0
             }, {
                 level: 2,
                 extensionsTarget: 5,
-                towersTarget: 0
+                towersTarget: 0,
+                containersTarget: 0
             }, {
                 level: 3,
                 extensionsTarget: 10,
-                towersTarget: 1
+                towersTarget: 1,
+                containersTarget: 5
             }]
         };
 
@@ -158,7 +192,13 @@ Buildings.prototype.updateCounters = function() {
             structureType: STRUCTURE_TOWER
         }
     }).length;
-
+    
+    
+    memory.containers = this.room.find(FIND_MY_STRUCTURES, {
+        filter: {
+            structureType: STRUCTURE_CONTAINER
+        }
+    }).length;
 
     this.setMemory(memory);
 };
@@ -178,6 +218,7 @@ Buildings.prototype.createBuildings = function() {
 
         if (constructionSites.length == 0) {
             this.buildTower(this.spawn.pos);
+            return;
         }
     }
     
@@ -189,6 +230,7 @@ Buildings.prototype.createBuildings = function() {
 
         if (constructionSites.length == 0) {
             this.buildExtension(this.spawn.pos);
+            return;
         }
     }
 
@@ -211,6 +253,17 @@ Buildings.prototype.createBuildings = function() {
     //When 4 or more extensions, build road for controller
     if (memory.extensions >= 4) {
         this.buildRoad(this.spawn.pos, this.room.controller.pos);
+    }
+    
+            
+    //Build containers
+    if (memory.containers < levelMemory.containersTarget) {
+        var constructionSites = this.room.find(FIND_CONSTRUCTION_SITES);
+
+        if (constructionSites.length == 0) {
+            this.buildContainer(this.spawn.pos);
+            return;
+        }
     }
 
 
@@ -263,6 +316,28 @@ Buildings.prototype.buildRoad = function(fromPosition, toPosition) {
 };
 
 
+Buildings.prototype.buildContainer = function(fromPosition) {
+
+    var newPos = this.findFreePos(fromPosition);
+
+    if (newPos === undefined) {
+        return;
+    }
+
+    if ((fromPosition.x - fromPosition.y) % 2 == 1) {
+        if ((newPos.x - newPos.y) % 2 == 0) {
+            this.room.createConstructionSite(newPos, STRUCTURE_CONTAINER);
+        } else {
+            this.room.createConstructionSite(newPos, STRUCTURE_TOWER);
+        }
+    } else {
+        if ((newPos.x - newPos.y) % 2 == 0) {
+            this.room.createConstructionSite(newPos, STRUCTURE_ROAD);
+        } else {
+            this.room.createConstructionSite(newPos, STRUCTURE_CONTAINER);
+        }
+    }
+}
 
 Buildings.prototype.buildTower = function(fromPosition) {
 

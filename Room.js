@@ -101,6 +101,11 @@ Room.prototype.setMemory = function(memory) {
     this.memory = memory;
 };
 
+Room.prototype.storeData = function() {
+    let memory = this.getMemory();
+    
+    let data = [];
+}
 
 /*
  *   Get this room spawn structure

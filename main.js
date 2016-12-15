@@ -2,10 +2,13 @@ var Room = require('Room');
 var Population = require('Population');
 var Buildings = require('Buildings');
 var Utils = require('Utils');
+var Profiler = require('Profiler');
 
-module.exports.loop = function() {
-    
-   
+
+let profile = false;
+
+
+function loop() {
     
     // delete Memory.rooms; 
 
@@ -30,13 +33,18 @@ module.exports.loop = function() {
     Utils.updateMemory();
     Utils.report(room);
 
-
-
-    
-    /*let start = Game.cpu.getUsed();
-    let end = Game.cpu.getUsed();
-    let used = end - start;
-    
-    console.log('This tick ' + used.toFixed(2) + ' cpu');*/
-
 };
+
+
+if (profile) {
+    
+    Profiler.enable();
+    
+    module.exports.loop = function() {
+        Profiler.wrap(function() {
+            loop();
+        });
+    }
+} else {
+    module.exports.loop = loop;
+}
