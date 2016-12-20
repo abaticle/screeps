@@ -1,34 +1,36 @@
+let CreepBase = require("CreepBase");
+
 var roleBuilder = {
 
-    countUpgaders: function() {
-        return _.filter(Game.creeps, creep => {
-            return creep.memory.action === "upgrading";
-        }).length;
+
+    getAction: function(creep) {
+        
+        if (creep.ticksToLive < 50) {
+            return "retiring";
+        } else {
+            if (creep.carry.energy == 0) {
+                return "harvesting";
+            } else {
+                //var targets = creep.room.find(FIND_CONSTRUCTION_SITES);
+                let targets = creep.room.getMemory().optimizer.constructionSites;
+    
+                if (targets.length > 0) {
+                    return "building";
+                } else {
+                    return "upgrading";
+                }
+            }
+        }
+        
     },
 
 
     /** @param {Creep} creep **/
     run: function(creep) {
+        
+        let target;
 
-        if (creep.ticksToLive < 100) {
-            creep.memory.action = "retiring";
-        } else {
-            if (creep.carry.energy == 0) {
-                creep.memory.action = "harvesting";
-            } else {
-                var targets = creep.room.find(FIND_CONSTRUCTION_SITES);
-    
-                if (targets.length > 0) {
-                    creep.memory.action = "building";
-                } else {
-                    creep.memory.action = "upgrading";
-                }
-            }
-        }
-
-
-
-        switch (creep.memory.action) {
+        switch (this.getAction(creep)) {
             
             
             case "retiring":
@@ -46,45 +48,22 @@ var roleBuilder = {
                 
 
             case "harvesting":
-                var closestSpawn = creep.pos.findClosestByRange(FIND_STRUCTURES, {
-                    filter: function(structure) {
-                        if (structure.structureType == STRUCTURE_CONTAINER &&
-                            _.sum(structure.store) > 0) {
-                           
-                            return true;
-                        }                        
-                        
-                        if ( structure.energy > 0 && (
-                            structure.structureType === STRUCTURE_EXTENSION ||
-                            structure.structureType === STRUCTURE_SPAWN
-                        )) {
-                            return true;
-                        }
-
-                        
-                        return false;
-                    }
-                });
                 
-                
-                if (creep.room.energyAvailable < 150) {
-                    creep.moveTo(closestSpawn);
-                } else {
-                    if (closestSpawn) {
-                        if (creep.withdraw(closestSpawn, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                            creep.moveTo(closestSpawn);
-                        }
-                    }
+                target = CreepBase.getBestSource(creep);
+               
+                if (creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(target);
                 }
                 break;
 
 
             case "building":
-                var targets = creep.room.find(FIND_CONSTRUCTION_SITES);
+                
+                target = CreepBase.getBestConstructionSite(creep);
 
-                if (targets.length) {
-                    if (creep.build(targets[0]) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(targets[0]);
+                if (target !== null) {
+                    if (creep.build(target) == ERR_NOT_IN_RANGE) {
+                        creep.moveTo(target);
                     }
                 }
                 break;

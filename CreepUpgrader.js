@@ -4,7 +4,7 @@ var roleUpgrader = {
     run: function(creep) {
     
     
-        if (creep.ticksToLive < 100) {
+        if (creep.ticksToLive < 50) {
             creep.memory.action = "retiring";
         } else {
             if (creep.carry.energy == 0) {
@@ -50,15 +50,15 @@ var roleUpgrader = {
                     }
                 });
                 
-                if (creep.room.energyAvailable < 150) {
+                /*if (creep.room.energyAvailable < 150) {
                     creep.moveTo(closestSpawn);
-                } else {
+                } else {*/
                     if (closestSpawn) {
                         if (creep.withdraw(closestSpawn, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                             creep.moveTo(closestSpawn);
                         }
                     }
-                }
+                //}
                 break;
 
             case "upgrading":

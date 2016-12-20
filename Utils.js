@@ -32,8 +32,9 @@ module.exports = {
                 numberCreeps: 0,
                 energyAvailable: room.energyAvailable,
                 energyCapacityAvailable: room.energyCapacityAvailable,
-                extensions: room.memory.extensions,
-                // droppedEnergy: room.getDroppedEnergy(),
+                extensions: room.getOptimizer().extensions.length,
+                containers: room.getOptimizer().containers.length,
+                droppedEnergy: _.sum(room.getOptimizer().droppedEnergy, "energy"),
                 miners: 0,
                 carriers: 0,
                 builders: 0,
@@ -42,8 +43,7 @@ module.exports = {
             }
 
             //log.numberCreeps = Game.creeps.length;
-
-
+            
             for (let creep in Game.creeps) {
 
                 log.numberCreeps++;
@@ -66,21 +66,45 @@ module.exports = {
                         break;
                 }
             }
+            
+            let widthLeft = "200";
+            let widthRight = "50";
+            
+            let displayCreeps = [
+                "<h4>Creeps</h4>",
+                "<table border='1'>",
+                "<tr><td width='", widthLeft , "px'>Total number of creeps</td><td align='center' width='", widthRight , "px'>", log.numberCreeps, "</td></tr>",
+                "<tr><td>Number of miners</td><td align='center'>", log.miners, "</td></tr>",
+                "<tr><td>Number of carriers</td><td align='center'>", log.carriers, "</td></tr>",
+                "<tr><td>Number of builders</td><td align='center'>", log.builders, "</td></tr>",
+                "<tr><td>Number of repairers</td><td align='center'>", log.repairers, "</td></tr>",
+                "<tr><td>Number of upgraders</td><td align='center'>", log.upgraders, "</td></tr>",
+                "</table>"
+            ].join("");
+            
+            
+            let displayEnergy = [
+                "<h4>Energy</h4>",
+                "<table border='1'>",
+                "<tr><td width='", widthLeft , "px'>Room energy</td><td align='center' width='", widthRight , "px'>&nbsp;", log.energyAvailable, "/", log.energyCapacityAvailable, "&nbsp;</td></tr>",
+                "<tr><td>Dropped energy</td><td align='center'>", log.droppedEnergy, "</td></tr>",
+                "</table>"
+            ].join("")
 
-            let display = [
-                "<table border='1' cellpadding='10'>",
-                "<tr><td>Total number of creeps</td><td align='center'>", log.numberCreeps, "</td></tr>",
-                "<tr><td>Total number of miners</td><td align='center'>", log.miners, "</td></tr>",
-                "<tr><td>Total number of carriers</td><td align='center'>", log.carriers, "</td></tr>",
-                "<tr><td>Total number of builders</td><td align='center'>", log.builders, "</td></tr>",
-                "<tr><td>Total number of repairers</td><td align='center'>", log.repairers, "</td></tr>",
-                "<tr><td>Total number of upgraders</td><td align='center'>", log.upgraders, "</td></tr>",
-                "<tr><td>Room energy</td><td>", log.energyAvailable, "/", log.energyCapacityAvailable, "</td></tr>",
+            let displayBuildings = [
+                "<h4>Buildings</h4>",
+                "<table border='1'>",
+                "<tr><td width='", widthLeft , "px'>Extensions</td><td align='center' width='", widthRight , "px'>", log.extensions, "</td></tr>",
+                "<tr><td>Containers</td><td align='center'>", log.containers, "</td></tr>",
                 "</table>"
             ].join("");
 
 
-            console.log(display);
+            console.log([
+                displayCreeps, 
+                displayEnergy, 
+                displayBuildings
+            ].join(""));
             //console.log("Dropped energy : ", log.droppedEnergy)
 
         }

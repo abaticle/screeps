@@ -11,6 +11,209 @@ function Population(room) {
 
 
 
+
+/*
+*   kill weak creeps to renew
+*/
+Population.prototype.optimize = function() {
+    if (Game.time % 10 === 0) {
+        
+        if (this.room.energyAvailable < 500) {
+            return;
+        }
+        
+        let lowestCost = 400;
+        let creepToKill;
+        
+        _.each(Game.creeps, function(creep) {
+            if (creep.memory.cost < lowestCost && creep.ticksToLive < 750) {
+                creepToKill = creep;
+            }
+        })
+        
+        
+        if (creepToKill) {
+            creepToKill.suicide();
+        }
+        
+        if (_.sum(this.room.getOptimizer().droppedEnergy, "energy") > 1500) {
+            
+            if (_.sum(this.room.getMemory().sources, "carriers") < 6) {
+                this.createCreep({
+                    role: "CreepCarrier"
+                });
+            }
+        }
+    }
+    
+    
+}
+
+
+/*
+*   Parts costs
+*/
+Population.prototype.getParts = function() {
+    return {
+        MOVE: 50,
+        CARRY: 50,
+        WORK: 100,
+        ATTACK: 80,
+        RANGED_ATTACK: 150,
+        HEAL: 250,
+        TOUGH: 10,
+        CLAIM: 600
+    };
+}
+
+
+/*
+*   Get roles configuration
+*/
+Population.prototype.getRoles = function() {
+    return {
+        CreepMiner: {
+            maxEnergy: 500, 
+            config: {
+                move: 0.3,
+                work: 0.6
+            }
+        },
+        CreepBuilder: {
+            config: {
+                move: 0.3,
+                work: 0.6,
+                carry: 0.6
+            }
+        },
+        CreepUpgrader: {
+            config: {
+                move: 0.3,
+                work: 0.4,
+                carry: 0.6
+            }
+        },
+        CreepCarrier: {
+            config: {
+                move: 0.4,
+                carry: 0.6
+            }
+        },
+        CreepRepairer: {
+            config: {
+                move: 0.3,
+                work: 0.4,
+                carry: 0.6
+            }
+        }
+    }
+}
+
+Population.prototype.getBestCreepBody = function(memory, energy) {
+    
+    
+    energy = energy || this.room.energyAvailable;
+    
+   // let energy = this.room.energyAvailable;
+        
+    let parts = this.getParts();
+    let role = this.getRoles()[memory.role];
+    
+    let move = 0;
+    let work = 0;
+    let carry = 0;
+    let attack = 0;
+    let range_attack = 0;
+    let heal = 0;
+    let tough = 0;
+    let claim = 0;
+    
+    let body = [];
+    
+    if (_.has(role, "maxEnergy")) {
+        if (energy > role.maxEnergy) {
+            energy = role.maxEnergy;
+        }
+    }
+    
+    if (_.has(role.config, "work")) {
+        work = Math.floor(energy * role.config.work / 100);
+        
+        for (var i = 0; i < work; i++) {
+            body.push(WORK);
+        }
+    }
+    
+    if (_.has(role.config, "carry")) {
+        carry = Math.floor(energy * role.config.carry / 100);
+        
+        for (var i = 0; i < carry; i++) {
+            body.push(CARRY);
+        }
+    } 
+    
+    if (_.has(role.config, "move")) {
+        move = Math.floor(energy * role.config.move / 100);
+        
+        for (var i = 0; i < move; i++) {
+            body.push(MOVE);
+        }
+    }
+    
+    if (_.has(role.config, "attack")) {
+        attack = Math.floor(energy * role.config.attack / 100);
+        
+        for (var i = 0; i < attack; i++) {
+            body.push(ATTACK);
+        }
+    }
+    
+    let leftoverEnergy = energy - this.getCost(body);
+    
+    
+    if (leftoverEnergy >= 100 && memory.role !== CreepCarrier) {
+        body.push(WORK);
+        leftoverEnergy -= 100;
+    }
+    
+    if (leftoverEnergy >= 50) {
+        body.push(MOVE);
+        leftoverEnergy -= 50;
+    }
+    
+    
+    
+    switch(memory.role) {
+        case "CreepUpgrader":
+        case "CreepMiner":
+        case "CreepBuilder":
+        case "CreepRepairer":
+            if (_.indexOf(body, WORK) == -1) {
+                body = [];
+            }
+            break;
+            
+        
+        case "CreepCarrier":
+            if (_.indexOf(body, CARRY) == -1) {
+                body = [];
+            }
+            break;
+        
+    }
+    
+    
+    
+    if (_.indexOf(body, MOVE) == -1) {
+        body = [];
+    }
+    
+    return body;
+}
+
+
+
+
 Population.prototype.getMemory = function() {
     return Memory.creepsConfig;
 };
@@ -24,18 +227,17 @@ Population.prototype.setMemory = function(config) {
  */
 Population.prototype.init = function() {
     
-    //this.setMemory(undefined)
+  //  this.setMemory(undefined)
     
     if (this.getMemory() === undefined) {
 
         let memory = {
             CreepMiner: {
                 builds: [
-                    [MOVE, WORK],
-                    [MOVE, WORK, WORK],
-                    [MOVE, MOVE, WORK, WORK, WORK],
-                    [MOVE, MOVE, WORK, WORK, WORK, WORK],
-                    [MOVE, MOVE, MOVE, WORK, WORK, WORK, WORK, WORK]
+                    [MOVE, WORK, CARRY],
+                    [MOVE, WORK, CARRY, WORK],
+                    [MOVE, MOVE, CARRY, WORK, WORK, WORK],
+                    [MOVE, MOVE, MOVE, CARRY, WORK, WORK, WORK, WORK, WORK]
                 ]
             },
             CreepBuilder: {
@@ -77,6 +279,13 @@ Population.prototype.init = function() {
                     [MOVE, MOVE, WORK, WORK, WORK, CARRY, CARRY, CARRY],
                     [MOVE, MOVE, MOVE, WORK, WORK, WORK, CARRY, CARRY, CARRY],
                     [MOVE, MOVE, MOVE, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY]
+                ]
+            },
+            CreepRangedAttacker: {
+                builds: [
+                    [TOUGH, MOVE, RANGED_ATTACK],
+                    [TOUGH, TOUGH, TOUGH, MOVE, RANGED_ATTACK, RANGED_ATTACK],
+                    [TOUGH, TOUGH, TOUGH, MOVE, MOVE, RANGED_ATTACK, RANGED_ATTACK]
                 ]
             }
         }
@@ -205,18 +414,29 @@ Population.prototype.createCreep = function(memory) {
     let result = -11;
     let spawn = this.room.getSpawn();
     let role = this.getMemory()[memory.role];
+    let build = this.getBestCreepBody(memory);
     
+    //memory.cost = this.getCost(build);
+    
+    /*result = spawn.createCreep(build, this.getNewName(memory.role), memory);
+    
+    if (_.isString(result)) {
+        
+        console.log("generate ", memory.role, " with cost ", memory.cost);
+        
+        this.created = true;
+    }*/
     
     role.builds.reverse().forEach(build => {
 
         if (spawn.canCreateCreep(build) == OK && !this.created) {
             
-            
-
             //add cost to creep memory for later optimization
             memory.cost = this.getCost(build);
 
             result = spawn.createCreep(build, this.getNewName(memory.role), memory);
+
+            //console.log("mem: ", JSON.stringify(memory))
 
             if (_.isString(result)) {
                 
@@ -321,6 +541,7 @@ Population.prototype.createCreeps = function() {
         var constructionSites = this.room.find(FIND_CONSTRUCTION_SITES);
         
         
+        
         if (roomMemory.spawn.builders < roomMemory.spawn.buildersTarget && constructionSites.length > 0) {
             this.createCreep({
                 role: "CreepBuilder",
@@ -338,6 +559,11 @@ Population.prototype.createCreeps = function() {
                         role: "CreepRepairer",
                         linkedStructure: roomMemory.spawn.id
                     });
+                } else {
+                    
+                    
+                    
+                    
                 }
             }
         }

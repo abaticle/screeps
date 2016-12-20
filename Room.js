@@ -1,10 +1,66 @@
+
+Room.prototype.updateOptimizer = function() {
+    let memory = this.getMemory();
+    
+    //delete memory.optimizer;
+    if (memory.optimizer === undefined) {
+        memory.optimizer = {
+            sources: this.find(FIND_SOURCES_ACTIVE),
+            extensions: [],
+            containers: [],
+            towers: [],
+            constructionSites: [],
+            spawns: [],
+            droppedEnergy: []
+        }
+    }
+    
+    memory.optimizer.sources = this.find(FIND_SOURCES_ACTIVE);
+    
+    memory.optimizer.extensions = this.find(FIND_MY_STRUCTURES, {
+        filter: { structureType: STRUCTURE_EXTENSION }
+    });
+    
+    memory.optimizer.containers = this.find(FIND_STRUCTURES, {
+        filter: { structureType: STRUCTURE_CONTAINER }
+    });
+    
+    memory.optimizer.towers = this.find(FIND_STRUCTURES, {
+        filter: { structureType: STRUCTURE_TOWER }
+    });
+    
+    memory.optimizer.constructionSites = this.find(FIND_CONSTRUCTION_SITES);
+    
+    memory.optimizer.spawns = this.find(FIND_MY_STRUCTURES, {
+        filter: function(structure) {
+            return structure.structureType === STRUCTURE_SPAWN;
+        }
+    });
+    
+    memory.optimizer.droppedEnergy = this.find(FIND_DROPPED_ENERGY);
+}
+
+
+Room.prototype.getOptimizer = function() {
+    return this.getMemory().optimizer;
+}   
+
+Room.prototype.setOptimizer = function(optimizer) {
+    this.getMemory().optimizer = optimizer;
+}
+
+
+
+
 /*
  *   Initialize room memory
  */
 Room.prototype.init = function() {
 
     let memory = this.getMemory();
-
+    
+   //memory.init = false;
+    
     if (memory.init === false || memory.init === undefined) {
 
         //Initialize memory :
@@ -38,12 +94,12 @@ Room.prototype.init = function() {
             }).length;
 
             //Limit to 3 max
-            if (minersTarget > 3) {
-                minersTarget = 3;
+            if (minersTarget > 2) {
+                minersTarget = 2;
             }
 
             let carriersTarget = 0;
-            if (minersTarget == 3) {
+            if (minersTarget == 2) {
                 carriersTarget = 2;
             } else {
                 carriersTarget = 1;
@@ -70,7 +126,9 @@ Room.prototype.init = function() {
             builders: 0,
             buildersTarget: 2,
             repairers: 0,
-            repairersTarget: 2,
+            repairersTarget: 1,
+            attackers: 0,
+            attackersTarget: 0,
             roadBuild: false
         }
 
@@ -80,7 +138,7 @@ Room.prototype.init = function() {
             pos: this.controller.pos,
             level: this.controller.level,
             upgraders: 0,
-            upgradersTarget: 1,
+            upgradersTarget: 2,
             roadBuild: false
         }
 
@@ -114,6 +172,8 @@ Room.prototype.getSpawn = function() {
     return Game.getObjectById(this.getMemory().spawn.id);
 }
 
+
+
 /*
 *   Update counter for each source.miners and source.carriers
         TODO:Optimize with loop on Game.creeps
@@ -141,6 +201,10 @@ Room.prototype.updateCounters = function() {
 
     memory.spawn.repairers = _.filter(Game.creeps, (creep) => {
         return creep.memory.role === "CreepRepairer" && creep.memory.linkedStructure === memory.spawn.id;
+    }).length;
+
+    memory.spawn.attackers = _.filter(Game.creeps, (creep) => {
+        return creep.memory.role === "CreepAttackers" && creep.memory.linkedStructure === memory.spawn.id;
     }).length;
 
 

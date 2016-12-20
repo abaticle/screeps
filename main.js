@@ -2,24 +2,23 @@ var Room = require('Room');
 var Population = require('Population');
 var Buildings = require('Buildings');
 var Utils = require('Utils');
-var Profiler = require('Profiler');
-
-
-let profile = false;
-
 
 function loop() {
+    
+    Utils.updateMemory();
     
     // delete Memory.rooms; 
 
     let room = Game.spawns.Spawn1.room;
 
-    room.init();
+    room.init(); 
     room.updateCounters();
+    room.updateOptimizer();
     
     let population = new Population(room);
     
     population.init();
+    population.optimize();
     population.createCreeps();
     population.runCreeps();
 
@@ -27,24 +26,30 @@ function loop() {
 
     buildings.init();
     buildings.updateCounters();
-    buildings.createBuildings();
+    //buildings.createBuildings();
     buildings.runTower();
     
-    Utils.updateMemory();
-    Utils.report(room);
 
+    Utils.report(room);
+   // console.log(JSON.stringify(Game.spawns.Spawn1.createUpgrader(800)))
+   
+    function test(role) {
+        
+        let energy = 200; //room.energyAvailable;
+        
+        let body = population.getBestCreepBody({
+            role: role
+        }, energy)    
+        console.log(energy + " " + role +  " > " + JSON.stringify(body));   
+    }
+    
+    /*test("CreepBuilder");
+    test("CreepCarrier");
+    test("CreepMiner");
+    test("CreepRepairer");*/
+   
+   
 };
 
 
-if (profile) {
-    
-    Profiler.enable();
-    
-    module.exports.loop = function() {
-        Profiler.wrap(function() {
-            loop();
-        });
-    }
-} else {
-    module.exports.loop = loop;
-}
+module.exports.loop = loop;

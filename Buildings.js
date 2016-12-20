@@ -9,16 +9,14 @@ function Buildings(room) {
     this.room = room;
     this.spawn = this.room.getSpawn();
 
-
 }
 
 Buildings.prototype.runTower = function() {
-    
-    let towers = this.room.find(FIND_MY_STRUCTURES, {
-        filter: {structureType : STRUCTURE_TOWER}
-    })
+
+    let towers = this.room.getOptimizer().towers;
     
     towers.forEach((tower) => {
+        
         
         //First, try to find hostile creep
         var closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
@@ -30,10 +28,9 @@ Buildings.prototype.runTower = function() {
             //Else, try to repaire structures, but keep a minimum of 200 energy
             if (tower.energy > 200) {
                 
-                
                  var targets = this.room.find(FIND_STRUCTURES, {
                     filter: (object) => {
-                        if (object.structureType === STRUCTURE_WALL) {
+                        if (object.structureType === STRUCTURE_WALL || object.structureType === STRUCTURE_RAMPART) {
                             if (object.hits < 3000) {
                                 return true;
                             }
@@ -165,6 +162,11 @@ Buildings.prototype.init = function() {
                 extensionsTarget: 10,
                 towersTarget: 1,
                 containersTarget: 5
+            }, {
+                level: 4,
+                extensionsTarget: 20,
+                towersTarget: 1,
+                containersTarget: 10
             }]
         };
 
@@ -208,11 +210,12 @@ Buildings.prototype.updateCounters = function() {
  */
 Buildings.prototype.createBuildings = function() {
 
+
     let memory = this.getMemory();
     let levelMemory = this.getLevelMemory();
 
     //Build towers
-    if (memory.towers < levelMemory.extensionsTarget) {
+    if (memory.towers < levelMemory.towersTarget) {
 
         var constructionSites = this.room.find(FIND_CONSTRUCTION_SITES);
 
@@ -221,7 +224,6 @@ Buildings.prototype.createBuildings = function() {
             return;
         }
     }
-    
     
     //Build extensions
     if (memory.extensions < levelMemory.extensionsTarget) {

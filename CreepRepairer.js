@@ -1,9 +1,11 @@
+let CreepBase = require("CreepBase");
+
 var roleRepairer = {
 
     run: function(creep) {
         
         
-        if (creep.ticksToLive < 100) {
+        if (creep.ticksToLive < 50) {
             creep.memory.action = "retiring";
         } else {
             if (creep.carry.energy == 0) {
@@ -30,28 +32,13 @@ var roleRepairer = {
                 break;
                 
             case "harvesting":
-                var closestSpawn = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
-                    filter: function(structure) {
-                        return structure.energy > 0 && (
-                            structure.structureType === STRUCTURE_EXTENSION ||
-                            structure.structureType === STRUCTURE_SPAWN
-                        );
-                    }
-                });
-                
-                
-                if (creep.room.energyAvailable < 150) {
-                    creep.moveTo(closestSpawn);
-                } else {
-                    if (closestSpawn) {
-                        if (creep.withdraw(closestSpawn, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                            creep.moveTo(closestSpawn);
-                        }
-                    }
+                target = CreepBase.getBestSource(creep);
+               
+                if (creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(target);
                 }
                 break;
                 
-
 
             case "repairing":
                 //creep.say("repair !");
@@ -61,7 +48,7 @@ var roleRepairer = {
                 
                 var targets = creep.room.find(FIND_STRUCTURES, {
                     filter: (object) => {
-                        if (object.structureType === STRUCTURE_WALL) {
+                        if (object.structureType === STRUCTURE_WALL || object.structureType === STRUCTURE_RAMPART) {
                             if (object.hits < 3000) {
                                 return true;
                             }
