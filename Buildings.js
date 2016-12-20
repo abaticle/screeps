@@ -259,14 +259,14 @@ Buildings.prototype.createBuildings = function() {
     
             
     //Build containers
-    if (memory.containers < levelMemory.containersTarget) {
+    /*if (memory.containers < levelMemory.containersTarget) {
         var constructionSites = this.room.find(FIND_CONSTRUCTION_SITES);
 
         if (constructionSites.length == 0) {
             this.buildContainer(this.spawn.pos);
             return;
         }
-    }
+    }*/
 
 
 

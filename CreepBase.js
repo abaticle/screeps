@@ -62,6 +62,18 @@ module.exports = {
         if (extension !== null) {
             return extension;
         } 
+
+
+        //Try with spawns
+        let spawn = creep.pos.findClosestByRange(optimizer.spawns, {
+            filter: (spawn) => { 
+                return spawn.energy > 0
+            }
+        });
+        
+        if (spawn !== null) {
+            return spawn;
+        } 
         
     },
     

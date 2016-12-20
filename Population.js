@@ -19,7 +19,9 @@ Population.prototype.optimize = function() {
     if (Game.time % 10 === 0) {
         
         //If enough dropped energy, create a new carrier
-        if (_.sum(this.room.getOptimizer().droppedEnergy, "energy") > 1500) { 
+        let droppedEnergy = _.sum(this.room.getOptimizer().droppedEnergy, "energy");
+        
+        if (droppedEnergy > 1500) { 
 
             let carriers = 0;
 
