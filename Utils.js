@@ -101,9 +101,11 @@ module.exports = {
 
 
             console.log([
-                displayCreeps, 
-                displayEnergy, 
-                displayBuildings
+                "<table><tr>",
+                "<td width='33%' valign='top'>", displayCreeps,"</td>", 
+                "<td width='33%' valign='top'>", displayEnergy, "</td>", 
+                "<td width='33%' valign='top'>",displayBuildings,"</td>", 
+                "</tr></table>"
             ].join(""));
             //console.log("Dropped energy : ", log.droppedEnergy)
 

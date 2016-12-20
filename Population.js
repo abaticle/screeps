@@ -13,40 +13,46 @@ function Population(room) {
 
 
 /*
-*   kill weak creeps to renew
+*   Optimize currents creep population
 */
 Population.prototype.optimize = function() {
     if (Game.time % 10 === 0) {
         
-        if (this.room.energyAvailable < 500) {
-            return;
-        }
-        
-        let lowestCost = 400;
-        let creepToKill;
-        
-        _.each(Game.creeps, function(creep) {
-            if (creep.memory.cost < lowestCost && creep.ticksToLive < 750) {
-                creepToKill = creep;
+        //If enough dropped energy, create a new carrier
+        if (_.sum(this.room.getOptimizer().droppedEnergy, "energy") > 1500) { 
+
+            let carriers = 0;
+
+            for (let creep in Game.creeps) {
+                if (Game.creeps[creep].memory.role === "CreepCarrier") {
+                    carriers++;
+                }
             }
-        })
-        
-        
-        if (creepToKill) {
-            creepToKill.suicide();
-        }
-        
-        if (_.sum(this.room.getOptimizer().droppedEnergy, "energy") > 1500) {
-            
-            if (_.sum(this.room.getMemory().sources, "carriers") < 6) {
+
+            if (carriers < 6) {
                 this.createCreep({
                     role: "CreepCarrier"
                 });
             }
         }
+
+        //If enough available energy, kill weak creep to renew
+        if (this.room.energyAvailable > 500) {
+            let lowestCost = 400;
+            let creepToKill;
+            
+            _.each(Game.creeps, function(creep) {
+                if (creep.memory.cost < lowestCost && creep.ticksToLive < 750) {
+                    creepToKill = creep;
+                }
+            })
+            
+            
+            if (creepToKill) {
+                creepToKill.suicide();
+            }
+        }
     }
-    
-    
 }
 
 
@@ -109,6 +115,10 @@ Population.prototype.getRoles = function() {
     }
 }
 
+
+/*
+*   TODO !!
+*/
 Population.prototype.getBestCreepBody = function(memory, energy) {
     
     

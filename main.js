@@ -26,7 +26,7 @@ function loop() {
 
     buildings.init();
     buildings.updateCounters();
-    //buildings.createBuildings();
+    buildings.createBuildings();
     buildings.runTower();
     
 
