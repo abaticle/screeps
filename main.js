@@ -24,7 +24,7 @@ function loop() {
         room.updateMemoryCreepsTarget(30);
         room.updateMemoryOthers(5);
 
-        room.calculateCreepsTargets();  //TEST !!!
+        //room.calculateCreepsTargets();  //TEST !!!
         
         
         let population = new Population(room);
@@ -37,7 +37,6 @@ function loop() {
         
 
         let buildings = new Buildings(room);
-        //buildings.createLayout();        
         buildings.createBuildings();
         buildings.runBuildings();
 
