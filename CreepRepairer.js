@@ -1,74 +1,53 @@
 let CreepBase = require("CreepBase");
 
-var roleRepairer = {
+module.exports = {
 
-    run: function(creep) {
-        
-        
-        if (creep.ticksToLive < 50) {
+
+    updateMemory: function(creep) {
+
+        let currentAction = creep.memory.action;
+
+        if (creep.ticksToLive < 50 || currentAction === "retiring") { 
             creep.memory.action = "retiring";
         } else {
-            if (creep.carry.energy == 0) {
+            if (creep.carry.energy < creep.carry.energyCapacity || (creep.room.energyAvailable < 150 && creep.carry.energy === 0))   {
                 creep.memory.action = "harvesting";
             } else {
                 creep.memory.action = "repairing";
             }
         }
 
-        switch (creep.memory.action) {
+        return creep.memory.action;
+    },    
+    
+    run: function(creep) {
+        switch (this.updateMemory(creep)) {
 
-            
             case "retiring":
-                var closestSpawn = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
-                    filter: function(structure) {
-                        return structure.structureType === STRUCTURE_SPAWN;
-                    }
-                });
-                
-                if (closestSpawn) {
-                    creep.moveTo(closestSpawn);
-                    closestSpawn.recycleCreep(creep);
-                }
-                break;
+                CreepBase.retire(creep);
+                break;   
                 
             case "harvesting":
-                target = CreepBase.getBestSource(creep);
+                let source = CreepBase.getBestSourceRepairer(creep);
                
-                if (creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(target);
+                if (source !== undefined) {
+                    if (creep.pickup(source) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(source)
+                    }
                 }
-                break;
+                break;       
                 
 
             case "repairing":
-                //creep.say("repair !");
-                /*var targets = creep.room.find(FIND_STRUCTURES, {
-                    filter: object => object.hits < (object.hitsMax / 4)
-                });*/
-                
-                var targets = creep.room.find(FIND_STRUCTURES, {
-                    filter: (object) => {
-                        if (object.structureType === STRUCTURE_WALL || object.structureType === STRUCTURE_RAMPART) {
-                            if (object.hits < 3000) {
-                                return true;
-                            }
-                        } else {
-                            if (object.hits < (object.hitsMax / 4)) {
-                                return true;
-                            }
-                        }
-                    }
-                    //filter: object => object.hits < (object.hitsMax / 4)
-                });
-
-                targets.sort((a, b) => a.hits - b.hits);
-
-                if (targets.length > 0) {
-                    if (creep.repair(targets[0]) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(targets[0]);
+                let target = CreepBase.getBestTargetRepairer(creep);
+               
+                if (target !== undefined) {
+                    if (creep.repair(target) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(target)
                     }
                 }
                 break;
+                
         }
 
         if (creep.pos.lookFor(LOOK_CONSTRUCTION_SITES).length > 0) {
@@ -77,7 +56,4 @@ var roleRepairer = {
         }
     }
 };
-
-
-module.exports = roleRepairer;
 

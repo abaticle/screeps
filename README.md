@@ -1,5 +1,3 @@
-My script for the game Screeps
-
 TODO:
 - If enough dropped energy, wait before creating new miners
 - Room exploration and attack

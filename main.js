@@ -1,54 +1,54 @@
-var Room = require('Room');
-var Population = require('Population');
-var Buildings = require('Buildings');
-var Utils = require('Utils');
+var Room = require("Room");
+var Population = require("Population");
+var Buildings = require("Buildings");
+var Utils = require("Utils");
+var profiler = require("Profiler");
 
 function loop() {
     
     Utils.updateMemory();
-    
+      
     // delete Memory.rooms; 
-
-    let room = Game.spawns.Spawn1.room;
-
-    room.init(); 
-    room.updateCounters();
-    room.updateOptimizer();
-    
-    let population = new Population(room);
-    
-    population.init();
-    population.optimize();
-    population.createCreeps();
-    population.runCreeps();
-
-    let buildings = new Buildings(room);
-
-    buildings.init();
-    buildings.updateCounters();
-    buildings.createBuildings();
-    buildings.runTower();
-    
-
-    Utils.report(room);
-   // console.log(JSON.stringify(Game.spawns.Spawn1.createUpgrader(800)))
-   
-    function test(role) {
+     
+    for (var name in Game.rooms) { 
         
-        let energy = 200; //room.energyAvailable;
+        let room = Game.rooms[name];
+
+        if (room.controller.my !== true) {
+            continue;
+        }
+
+        room.initMemory(); 
+        room.updateMemoryBuildings();
+        room.updateMemoryCreepsCurrent(); 
+        room.updateMemoryCreepsTarget(30);
+        room.updateMemoryOthers(5);
+
+        room.calculateCreepsTargets();  //TEST !!!
         
-        let body = population.getBestCreepBody({
-            role: role
-        }, energy)    
-        console.log(energy + " " + role +  " > " + JSON.stringify(body));   
+        
+        let population = new Population(room);
+        population.optimize();
+        population.createCreeps();
+        population.runCreeps();
+
+
+
+        
+
+        let buildings = new Buildings(room);
+        //buildings.createLayout();        
+        buildings.createBuildings();
+        buildings.runBuildings();
+
+
+        
+        Utils.report(room, 50);
+        Utils.record(room, 50);     
+    //Utils.displayRecords(room, 50);
+
     }
     
-    /*test("CreepBuilder");
-    test("CreepCarrier");
-    test("CreepMiner");
-    test("CreepRepairer");*/
-   
-   
 };
 
 

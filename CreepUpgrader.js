@@ -1,64 +1,45 @@
-var roleUpgrader = {
+let CreepBase = require("CreepBase");
 
-    /** @param {Creep} creep **/
-    run: function(creep) {
-    
-    
-        if (creep.ticksToLive < 50) {
+module.exports = {
+
+    updateMemory: function(creep) {
+
+        let currentAction = creep.memory.action;
+
+        if (creep.ticksToLive < 50 || currentAction === "retiring") { 
             creep.memory.action = "retiring";
         } else {
-            if (creep.carry.energy == 0) {
+            if (creep.carry.energy === 0 && creep.room.energyAvailable > ( creep.room.energyCapacityAvailable * 0.5)  ) {
                 creep.memory.action = "harvesting";
             } else {
                 creep.memory.action = "upgrading";
             }
         }
 
-        switch (creep.memory.action) {
+        return creep.memory.action;
+    },
+
+
+
+
+    /** @param {Creep} creep **/
+    run: function(creep) {
+
+        switch (this.updateMemory(creep)) {
             
             case "retiring":
-                var closestSpawn = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
-                    filter: function(structure) {
-                        return structure.structureType === STRUCTURE_SPAWN;
-                    }
-                });
-                
-                if (closestSpawn) {
-                    creep.moveTo(closestSpawn);
-                    closestSpawn.recycleCreep(creep);
-                }
-                break;
+                CreepBase.retire(creep);
+                break;   
                 
             case "harvesting":
-                var closestSpawn = creep.pos.findClosestByRange(FIND_STRUCTURES, {
-                    filter: function(structure) {
-                        if (structure.structureType == STRUCTURE_CONTAINER &&
-                            _.sum(structure.store) > 0) {
-                           
-                            return true;
-                        }                        
-                        
-                        if ( structure.energy > 0 && (
-                            structure.structureType === STRUCTURE_EXTENSION ||
-                            structure.structureType === STRUCTURE_SPAWN
-                        )) {
-                            return true;
-                        }
+                let source = CreepBase.getBestSourceUpgrader(creep);
 
-                        
-                        return false;
+                if (source !== undefined) {
+                    if (creep.withdraw(source, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                        creep.moveTo(source);
                     }
-                });
-                
-                /*if (creep.room.energyAvailable < 150) {
-                    creep.moveTo(closestSpawn);
-                } else {*/
-                    if (closestSpawn) {
-                        if (creep.withdraw(closestSpawn, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                            creep.moveTo(closestSpawn);
-                        }
-                    }
-                //}
+                }
+
                 break;
 
             case "upgrading":
@@ -76,5 +57,3 @@ var roleUpgrader = {
         }
     }
 };
-
-module.exports = roleUpgrader;

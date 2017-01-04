@@ -1,32 +1,38 @@
-/*
-    memory: {
-        role: "CreepMiner",
-        linkedStructure: <source id>
-    }
-*/
+let CreepBase = require("CreepBase");
+
 module.exports = {
 
-    /** @param {Creep} creep **/
     run: function(creep) {
         
-        let optimizer = creep.room.getMemory().optimizer;
         let source = Game.getObjectById(creep.memory.linkedStructure);
 
-        let container = creep.pos.findInRange(FIND_STRUCTURES, 1, {
-            filter: { 
-                structureType : STRUCTURE_CONTAINER
-            }
-        });
-        
-        if (container.length > 0) {
-            creep.transfer(container[0], RESOURCE_ENERGY)
+        if (source === undefined) {
+            creep.suicide();
+            return;
         }
-        
 
-        if (source && creep.harvest(source) == ERR_NOT_IN_RANGE) {
+
+        if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
             creep.moveTo(source);
-        }
-        
+        } else {
+            let links = creep.pos.findInRange(creep.room.memory.buildings.links, 1); 
+
+            if (links.length > 0) {  
+
+                let transfer = creep.transfer(Game.getObjectById(links[0].id), RESOURCE_ENERGY);
+
+                
+            } else {
+                let container = creep.pos.findInRange(creep.room.memory.buildings.containers, 1);
+                
+                if (container.length > 0) {
+                    creep.transfer(Game.getObjectById(container[0].id), RESOURCE_ENERGY)
+                } else {
+                    creep.drop(RESOURCE_ENERGY);
+                }
+            }
+        } 
+
         
     }
 };

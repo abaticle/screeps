@@ -1,32 +1,16 @@
 let CreepBase = require("CreepBase");
 
-var roleCarrier = {
+var roleHauler = {
     
 
     updateMemory: function(creep) { 
-
-        /*let currentAction = creep.memory.action;
-
-        if (creep.ticksToLive < 50 || currentAction === "retiring") { 
-
-        } else {        
-            if(creep.memory.action == "refilling" && creep.carry.energy == 0) {
-                creep.memory.action = "harvesting";
-            }
-            if(creep.memory.action !== "refilling" && creep.carry.energy == creep.carryCapacity) {
-                creep.memory.action = "refilling";
-            }
-        }*/
-
-
-
 
         let currentAction = creep.memory.action;
 
         if (creep.ticksToLive < 50 || currentAction === "retiring") { 
             creep.memory.action = "retiring";
         } else {
-            if (creep.carry.energy < creep.carryCapacity)   {
+            if (creep.carry.energy === 0)   {
                 creep.memory.action = "harvesting";
             } else {
                 creep.memory.action = "refilling";
@@ -44,7 +28,7 @@ var roleCarrier = {
                 break;                
                 
             case "harvesting":
-                let source = CreepBase.getBestSourceCarrier(creep);
+                let source = CreepBase.getBestSourceHauler(creep);
 
                 if (source !== undefined) {
                     if (creep.pickup(source) === ERR_NOT_IN_RANGE) {
@@ -54,7 +38,7 @@ var roleCarrier = {
                 break;                
                 
             case "refilling":                
-                let target = CreepBase.getBestTargetCarrier(creep);
+                let target = CreepBase.getBestTargetHauler(creep);
                         
                 if (target != undefined) {
                     if (creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
@@ -66,4 +50,4 @@ var roleCarrier = {
     }
 };
 
-module.exports = roleCarrier;
+module.exports = roleHauler;

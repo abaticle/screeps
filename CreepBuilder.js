@@ -1,87 +1,71 @@
 let CreepBase = require("CreepBase");
 
-var roleBuilder = {
+module.exports = {
 
 
-    getAction: function(creep) {
-        
-        if (creep.ticksToLive < 50) {
-            return "retiring";
-        } else {
-            if (creep.carry.energy == 0) {
-                return "harvesting";
-            } else {
-                //var targets = creep.room.find(FIND_CONSTRUCTION_SITES);
-                let targets = creep.room.getMemory().optimizer.constructionSites;
-    
-                if (targets.length > 0) {
-                    return "building";
-                } else {
-                    return "upgrading";
-                }
+    updateMemory: function(creep) {
+
+        let currentAction = creep.memory.action;
+
+        if (creep.ticksToLive < 50 || currentAction === "retiring") { 
+            creep.memory.action = "retiring";
+        } else {        
+            if(creep.memory.action == "building" && creep.carry.energy == 0) {
+                creep.memory.action = "harvesting";
+            }
+            if(creep.memory.action !== "building" && creep.carry.energy == creep.carryCapacity) {
+                creep.memory.action = "building";
             }
         }
-        
+
+        if(creep.memory.action == undefined) {
+            creep.memory.action == "harvesting";
+        }
+
+
+        /*let currentAction = creep.memory.action;
+
+        if (creep.ticksToLive < 50 || currentAction === "retiring" || creep.room.memory.others.constructionSites.length === 0) { 
+            creep.memory.action = "retiring";
+        } else {
+            if (creep.carry.energy < creep.carryCapacity && (creep.room.energyAvailable > ( creep.room.energyCapacityAvailable * 0.5))) {
+                creep.memory.action = "harvesting";
+            } else {
+                creep.memory.action = "building";
+            }
+        }*/
+
+        return creep.memory.action;
     },
 
-
-    /** @param {Creep} creep **/
-    run: function(creep) {
-        
-        let target;
-
-        switch (this.getAction(creep)) {
-            
+    run: function(creep) {        
+        switch (this.updateMemory(creep)) {            
             
             case "retiring":
-                var closestSpawn = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
-                    filter: function(structure) {
-                        return structure.structureType === STRUCTURE_SPAWN;
+                CreepBase.retire(creep);
+                break;            
+
+            case "harvesting":                
+                let source = CreepBase.getBestSourceBuilder(creep);
+
+                if (source !== undefined) {
+                    if (creep.withdraw(source, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                        creep.moveTo(source);
                     }
-                });
-                
-                if (closestSpawn) {
-                    creep.moveTo(closestSpawn);
-                    closestSpawn.recycleCreep(creep);
                 }
                 break;
-                
-
-            case "harvesting":
-                
-                target = CreepBase.getBestSource(creep);
-               
-                if (creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(target);
-                }
-                break;
-
 
             case "building":
+                let target = CreepBase.getBestTargetBuilder(creep)
                 
-                target = CreepBase.getBestConstructionSite(creep);
-
-                if (target !== null) {
+                if (target !== undefined) {
                     if (creep.build(target) == ERR_NOT_IN_RANGE) {
                         creep.moveTo(target);
-                    }
-                }
-                break;
-
-
-            case "upgrading":
-                if (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(creep.room.controller);
+                    }                    
                 } else {
-                    //if (creep.pos.getRangeTo(creep.room.controller.pos.x, creep.room.controller.pos.y) > )
-                    creep.moveTo(creep.room.controller);
+                    creep.memory.action = "retiring";
                 }
                 break;
-
-
-
-
-
         }
 
 
@@ -92,5 +76,3 @@ var roleBuilder = {
         }
     }
 };
-
-module.exports = roleBuilder;
