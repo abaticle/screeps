@@ -1,5 +1,88 @@
 
 
+Room.prototype._getBestUpgradersConfig = function() {
+
+    let that = this;
+
+    distanceAverageController = function () {
+        let controller = that.controller;
+        let offloadPoints=  that.find(FIND_STRUCTURES, {
+            filter: function(object) {
+                return (object.structureType == STRUCTURE_SPAWN
+                        || object.structureType == STRUCTURE_EXTENSION);
+            }
+        });
+        let totalDistance= 0;
+        let numRoutes = 0;
+        
+        for ( let j = 0 ; j < offloadPoints.length ; j++ ) {
+            totalDistance += controller.pos.findPathTo(offloadPoints[j]).length;
+            numRoutes++;
+        }
+    
+        return totalDistance/numRoutes
+    };
+
+    console.log(distanceAverageController().toFixed(0))
+    return;
+
+
+    for (let i = 0; i < 10000; i++) {
+
+        let distController = parseInt(distanceAverageController());
+
+        let carryPartsUpgrader = Math.floor(Math.random() * 20) + 1;
+        let workPartsUpgrader = Math.floor(Math.random() * 20) + 1;
+        let numberUpgrader = Math.floor(Math.random() * 5) + 5;
+
+        //let maxCostUpgrader = getIntValue('maxCostUpgrader');
+        maxCostUpgrader = this.energyCapacityAvailable;
+
+        let costUpgrader = (carryPartsUpgrader * 50) + (workPartsUpgrader * 100) + (parseInt((carryPartsUpgrader+workPartsUpgrader)/2)) * 50;
+        
+        let energyUpgraded = numberUpgrader * (
+            ( 1500 * carryPartsUpgrader * 50 ) / ( 
+                ( 2 * distController ) + ( ( carryPartsUpgrader * 50 ) / workPartsUpgrader ) 
+            )
+        );
+        
+        energyUpgraded = parseInt(energyUpgraded);
+
+        if (energyUpgraded > 25000 && energyUpgraded < 30000) {
+            
+            console.log("Carry parts :", carryPartsUpgrader);
+            console.log("Work parts :", workPartsUpgrader);
+            console.log("Number upgraders :", numberUpgrader);
+            console.log("Cost upgraders :", costUpgrader);
+            console.log("Total energy :", energyUpgraded);
+            break;
+        }
+    }
+};
+
+Room.prototype._createDepositEnergyFlag = function() {
+
+    try{
+        let controller = this.controller;
+        let spawn = Game.getObjectById(this.memory.buildings.spawns[0].id);
+        
+        let path = spawn.pos.findPathTo(controller.pos, {
+            ignoreCreeps: true
+        });
+
+        let target = path[parseInt(path.length * 0.8)]
+
+        let name = "Energy-" + this.name;
+
+        this.createFlag(target.x, target.y, name)
+
+        console.log("Create flag", name)
+
+    } catch(error) {
+        console.log("Error at Room.createDepositEnergyFlag :",error)
+    }
+};
+
 Room.prototype.calculateCreepsTargets = function()  {
 
     let that = this;
@@ -161,7 +244,7 @@ Room.prototype.calculateCreepsTargets = function()  {
 */
 Room.prototype.initMemory = function() {
     
- //delete this.memory;
+//this.memory.init = false;
  
     if (this.memory.init === true) {
         return;
@@ -171,25 +254,6 @@ Room.prototype.initMemory = function() {
     
     let memory = {
         init: true,
-
-/*        borders: {
-            top: {
-                wallsBuilt: false,
-                wallsNeeded: (room.find(FIND_EXIT_TOP).length === 0 ? true : false)
-            },
-            right: {
-                wallsBuilt: false,
-                wallsNeeded: (room.find(FIND_EXIT_RIGHT).length === 0 ? true : false)
-            },
-            bottom: {
-                wallsBuilt: false,
-                wallsNeeded: (room.find(FIND_EXIT_BOTTOM).length === 0 ? true : false)
-            },
-            left: {
-                wallsBuilt: false,
-                wallsNeeded: (room.find(FIND_EXIT_LEFT).length === 0 ? true : false)
-            }
-        },*/
 
         buildings: {
             sources: [],
@@ -269,39 +333,13 @@ Room.prototype.initMemory = function() {
             sourceToSpawn = source.pos.getRangeTo(spawns[0]);
         }
         
-        //Available space around the source :
-        let minersTarget = _.filter(this.lookForAtArea(
-            LOOK_TERRAIN,
-            source.pos.y - 1,
-            source.pos.x - 1,
-            source.pos.y + 1,
-            source.pos.x + 1,
-            true
-        ), (area) => area.terrain === "plain" || area.terrain === "swamp").length;
-
-        if (minersTarget > 2) {
-            minersTarget = 2;
-        }
-
-        let carriersTarget = 0;
-        if (minersTarget == 2) {
-            if (sourceToSpawn < 6) {
-                carriersTarget = 1;
-            } else {
-                carriersTarget = 2;    
-            }
-            
-        } else {
-            carriersTarget = 1;
-        }
-
         memory.buildings.sources.push({
             id: source.id,
             pos: source.pos,
             miners: 0,
-            minersTarget: minersTarget,
+            minersTarget: 1,
             carriers: 0,
-            carriersTarget: carriersTarget,
+            carriersTarget: 2,
             roadBuild: false
         });
     });
@@ -314,6 +352,8 @@ Room.prototype.initMemory = function() {
         level: this.controller.level,
         roadBuild: false
     };
+
+    this._createDepositEnergyFlag();
 
 
     this.memory = memory;
@@ -519,6 +559,7 @@ Room.prototype.updateMemoryCreepsTarget = function(time) {
     }
 
 
+
     //If some construction site, create builders
     let sites = this.memory.others.constructionSites.length;
 
@@ -565,7 +606,10 @@ Room.prototype.updateMemoryCreepsTarget = function(time) {
     }
 
     //TEST :
-    this.memory.creepsTarget.upgraders = 1;
+    this.memory.creepsTarget.upgraders = 2;
+    this.memory.creepsTarget.haulers = 0;
+    this.memory.creepsTarget.repairers = 1;
+
 };
 
 /*

@@ -2,31 +2,23 @@ let CreepBase = require("CreepBase");
 
 var roleCarrier = {
     
+    targets: [
+        "towers+", 
+        "extensions", 
+        "spawns", 
+        "towers",
+        "containers",
+        "storages"
+    ],
 
     updateMemory: function(creep) { 
-
-        /*let currentAction = creep.memory.action;
-
-        if (creep.ticksToLive < 50 || currentAction === "retiring") { 
-
-        } else {        
-            if(creep.memory.action == "refilling" && creep.carry.energy == 0) {
-                creep.memory.action = "harvesting";
-            }
-            if(creep.memory.action !== "refilling" && creep.carry.energy == creep.carryCapacity) {
-                creep.memory.action = "refilling";
-            }
-        }*/
-
-
-
 
         let currentAction = creep.memory.action;
 
         if (creep.ticksToLive < 50 || currentAction === "retiring") { 
             creep.memory.action = "retiring";
         } else {
-            if (creep.carry.energy < creep.carryCapacity)   {
+            if (creep.carry.energy === 0)   {
                 creep.memory.action = "harvesting";
             } else {
                 creep.memory.action = "refilling";
@@ -53,12 +45,25 @@ var roleCarrier = {
                 }
                 break;                
                 
-            case "refilling":                
-                let target = CreepBase.getBestTargetCarrier(creep);
+            case "refilling":           
+
+                let target = CreepBase.getTarget(creep, this.targets);
                         
                 if (target != undefined) {
+
                     if (creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                         creep.moveTo(target);
+                    }
+
+                } else {
+                    let flag = CreepBase.getEnergyFlag(creep);
+
+                    if (flag) {
+                        if (!creep.pos.isEqualTo(flag.pos)) {
+                            creep.moveTo(flag);
+                        } else {
+                            creep.drop(RESOURCE_ENERGY);
+                        }
                     }
                 }
                 break;

@@ -95,13 +95,13 @@ Population.prototype.getConfig2 = function() {
             increase: [MOVE, MOVE, WORK, CARRY],
             baseEnergy: 250,
             increaseEnergy: 250,
-            max: Infinity
+            max: 1200
         },
         CreepUpgrader: {
             base: [MOVE, MOVE, WORK, CARRY], 
-            increase: [MOVE, MOVE, WORK, CARRY],
+            increase: [MOVE, WORK],
             baseEnergy: 250,
-            increaseEnergy: 250,
+            increaseEnergy: 150,
             max: Infinity
         },
         CreepHauler: {
@@ -109,14 +109,14 @@ Population.prototype.getConfig2 = function() {
             increase: [MOVE, CARRY],
             baseEnergy: 100,
             increaseEnergy: 100,
-            max: Infinity
+            max: 1000
         },
         CreepCarrier: {
             base: [MOVE, CARRY], 
             increase: [MOVE, CARRY],
             baseEnergy: 100,
             increaseEnergy: 100,
-            max: Infinity
+            max: 1000
         },
         CreepRepairer: {
             base: [MOVE, MOVE, WORK, CARRY], 

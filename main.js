@@ -22,9 +22,9 @@ function loop() {
         room.updateMemoryBuildings();
         room.updateMemoryCreepsCurrent(); 
         room.updateMemoryCreepsTarget(30);
-        room.updateMemoryOthers(5);
+        room.updateMemoryOthers();
 
-        //room.calculateCreepsTargets();  //TEST !!!
+        //room._getBestUpgradersConfig();  //TEST !!!
         
         
         let population = new Population(room);
@@ -44,7 +44,7 @@ function loop() {
         
         Utils.report(room, 50);
         Utils.record(room, 50);     
-    //Utils.displayRecords(room, 50);
+    Utils.displayRecords(room, 50);
 
     }
     

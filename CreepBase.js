@@ -9,6 +9,27 @@
 
 module.exports = {
     
+
+
+	getEnergyFlag: function(creep, withEnergy) {
+
+		let flag = Game.flags["Energy-" + creep.room.name]
+
+		if (flag !== undefined) {
+			if (withEnergy !== undefined && withEnergy == true) {
+				let energy = flag.pos.findInRange(FIND_DROPPED_ENERGY,1);
+
+				if (energy.length) {
+					return flag;
+				}
+			} else {
+				return flag;
+			}
+		}
+
+		return undefined;
+	},
+
     /*
     *   Recycle a creep
     */
@@ -205,6 +226,95 @@ module.exports = {
         }
     },
 
+    getSource: function(creep, structureList) {
+
+        let target;
+        let buildings;
+
+        for (let structure of structureList) {
+
+            buildings = _.map(creep.room.memory.buildings[structure], building => Game.getObjectById(building.id));
+            
+            target = creep.pos.findClosestByRange(buildings, {
+
+                filter: (building) => { 
+
+                    switch (structure) {
+
+                        case "containers": 
+                        case "storages":
+                            return building.store[RESOURCE_ENERGY] > 0;
+
+                        case "extensions":
+                        case "spawns": 
+                        case "links":
+                            return building.energy > 0;  
+                    }                
+                }
+            });
+
+            if (target != undefined ) {
+                break;
+            }
+        }
+
+        return target;
+
+    },
+
+    getTarget: function(creep, structureList) {
+
+    	let target;
+    	let buildings;
+
+
+    	for (let structure of structureList) {
+
+    		let towerPriority = false;
+
+    		if (structure === "towers+") {
+    			towerPriority = true;
+    			structure = "towers";
+    		}
+
+
+
+    		buildings = _.map(creep.room.memory.buildings[structure], building => Game.getObjectById(building.id));
+    		
+    		target = creep.pos.findClosestByRange(buildings, {
+
+	            filter: (building) => { 
+
+	                switch (structure) {
+
+	                	case "towers":
+	                		if (towerPriority) {
+	                			return building.energy < 300;  
+	                		} else {
+	                			return building.energy < building.energyCapacity;	          
+	                		}	                                      
+
+	                    case "containers": 
+	                    case "storages":
+	                        return _.sum(building.store) < building.storeCapacity;
+
+	                    case "extensions":                        
+	                    case "spawns": 
+	                    case "links":
+	                        return building.energy < building.energyCapacity;
+	                }                
+	            }
+	        });
+
+	        if (target != undefined ) {
+	        	break;
+	        }
+    	}
+
+    	return target;
+
+    },
+
     /*
     *   Get target structure to refill energy
     *       creep : current creep
@@ -212,9 +322,10 @@ module.exports = {
     */
     _getTarget: function(creep, structures, towerPriority) {
 
-        let buildings = creep.room.memory.buildings;
+        let buildings = creep.room.memory.buildings[structures];
+        let targetStructures = _.map(buildings, building => Game.getObjectById(building.id));        
 
-        let source = creep.pos.findClosestByRange(_.map(buildings[structures], structure => Game.getObjectById(structure.id)), {
+        let source = creep.pos.findClosestByRange(targetStructures, {
 
             filter: (structure) => { 
 
@@ -247,65 +358,6 @@ module.exports = {
             return undefined;
         }
     },
-
-    /*
-    *   Get energy to build :
-    *       1. From containers
-    *       2. From storage
-    *       3. From extensions
-    *       4. From spawn
-    */  
-    getBestSourceBuilder: function(creep) {
-        
-        let orders = [
-            "containers", 
-            "storages",
-            "extensions",
-            "spawns"
-        ];
-
-        let target;
-
-        for (let order of orders) {
-            target = this._getSource(creep, order);
-
-            if (target !== undefined) {
-                break;
-            }
-        }
-
-        return target;
-    },
-
-    /*
-    *   Get energy to upgrade :
-    *       1. From containers
-    *       2. From storage
-    *       3. From extensions
-    *       4. From spawn
-    */  
-    getBestSourceUpgrader: function(creep) {
-
-        let orders = [
-            "containers", 
-            "storages",
-            "extensions",
-            "spawns"
-        ];
-
-        let target;
-
-        for (let order of orders) {
-            target = this._getSource(creep, order);
-
-            if (target !== undefined) {
-                break;
-            }
-        }
-
-        return target;
-    },
-
 
     /*
     *   Get energy to repaire :
@@ -360,45 +412,6 @@ module.exports = {
         return target;
     },
     
-    /*
-    *   Get energy structure to refill
-    *       1. Tower with < 200 energy
-    *       2. extensions
-    *       3. spawn
-    *       4. Tower with > 200 energy
-    *       5. Containers
-    *       6. Storages
-    */
-    getBestTargetCarrier: function(creep) {
-        
-        let orders = [
-            "towers+", 
-            "extensions", 
-            "spawns", 
-            "towers",
-            "containers",
-            "storages"
-        ];
-
-        let target;
-
-        for (let order of orders) {
-            
-            if (order === "towers+") {
-                target = this._getTarget(creep, order, true);
-            } else {
-                target = this._getTarget(creep, order)
-            }
-
-            if (target !== undefined) {
-                break;
-            }
-        }
-
-        return target;
-
-    },
-
     /*
     *   Get target for builder
     *       1. Closest constructionSite
