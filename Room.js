@@ -367,7 +367,6 @@ Room.prototype.updateMemoryDefense = function(time) {
         }
     }
 
-    let memory = this.memory;
     let defense = {};
 
     defense.hostileCreeps = this.find(FIND_HOSTILE_CREEPS);
@@ -389,9 +388,7 @@ Room.prototype.updateMemoryDefense = function(time) {
         defense.defcon = 4
     }
 
-
-    memory.defense = {};
-
+    this.memory.defense = defense;
 
 }
 

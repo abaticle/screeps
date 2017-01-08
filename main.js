@@ -41,11 +41,10 @@ function loop() {
         buildings.createBuildings();
         buildings.runBuildings();
 
-
         
         Utils.report(room, 50);
         Utils.record(room, 50);     
-    Utils.displayRecords(room, 50);
+        Utils.displayRecords(room, 50);
 
     }
     
