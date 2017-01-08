@@ -20,6 +20,7 @@ function loop() {
 
         room.initMemory(); 
         room.updateMemoryBuildings();
+        room.updateMemoryDefense();
         room.updateMemoryCreepsCurrent(); 
         room.updateMemoryCreepsTarget(30);
         room.updateMemoryOthers();

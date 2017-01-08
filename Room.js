@@ -359,6 +359,41 @@ Room.prototype.initMemory = function() {
     this.memory = memory;
 }
 
+Room.prototype.updateMemoryDefense = function(time) {
+
+    if (time !== undefined) {
+        if (Game.time % time !== 0) {
+            return;
+        }
+    }
+
+    let memory = this.memory;
+    let defense = {};
+
+    defense.hostileCreeps = this.find(FIND_HOSTILE_CREEPS);
+    defense.defcon = 0;
+
+    if (defense.hostileCreeps.length == 0){
+        defense.defcon = 0;
+    }
+
+    if (defense.hostileCreeps.length < 4) {
+        defense.defcon = 1;
+    }
+
+    if(this.hostileCreeps.length > 4){
+        defense.defcon = 3
+    }
+
+    if(this.hostileCreeps.length > 10){
+        defense.defcon = 4
+    }
+
+
+    memory.defense = {};
+
+
+}
 
 /*
 *   Update all buildings counters
